@@ -5,6 +5,7 @@ const {
   createSparePart,
   updateSparePart,
   deleteSparePart,
+  bulkInsert,
 } = require('../controllers/sparePartController');
 
 const router = express.Router();
@@ -23,5 +24,8 @@ router.put('/:id', updateSparePart);
 
 // DELETE spare part
 router.delete('/:id', deleteSparePart);
+
+// routes/sparePartRoutes.js
+router.post('/bulk', bulkInsert);
 
 module.exports = router;
