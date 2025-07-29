@@ -1,7 +1,7 @@
-import Category from '../models/Category.js';
+const Category = require('../models/Category');
 
 // Get all categories
-export const getAllCategories = async (req, res) => {
+const getAllCategories = async (req, res) => {
   try {
     const search = req.query.search || '';
     const regex = new RegExp(search, 'i');
@@ -14,7 +14,7 @@ export const getAllCategories = async (req, res) => {
 };
 
 // Get one category by ID
-export const getCategoryById = async (req, res) => {
+const getCategoryById = async (req, res) => {
   try {
     const category = await Category.findById(req.params.id);
     if (!category) return res.status(404).json({ error: 'Category not found' });
@@ -25,12 +25,11 @@ export const getCategoryById = async (req, res) => {
 };
 
 // Create new category
-export const createCategory = async (req, res) => {
+const createCategory = async (req, res) => {
   try {
     const { name } = req.body;
     if (!name) return res.status(400).json({ error: 'Category name is required' });
 
-    // Check if category already exists
     const exists = await Category.findOne({ name: name.trim() });
     if (exists) return res.status(409).json({ error: 'Category already exists' });
 
@@ -42,7 +41,7 @@ export const createCategory = async (req, res) => {
 };
 
 // Update category by ID
-export const updateCategory = async (req, res) => {
+const updateCategory = async (req, res) => {
   try {
     const updated = await Category.findByIdAndUpdate(
       req.params.id,
@@ -58,7 +57,7 @@ export const updateCategory = async (req, res) => {
 };
 
 // Delete category by ID
-export const deleteCategory = async (req, res) => {
+const deleteCategory = async (req, res) => {
   try {
     const deleted = await Category.findByIdAndDelete(req.params.id);
     if (!deleted) return res.status(404).json({ error: 'Category not found' });
@@ -67,4 +66,12 @@ export const deleteCategory = async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
+};
+
+module.exports = {
+  getAllCategories,
+  getCategoryById,
+  createCategory,
+  updateCategory,
+  deleteCategory,
 };
