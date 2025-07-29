@@ -56,8 +56,7 @@ const createSparePart = async (req, res) => {
       unit,
       buying_price,
       selling_price,
-      category,
-      compatible_models,
+      category: mongoose.Types.ObjectId(category), compatible_models,
     });
 
     res.status(201).json(newPart);
@@ -90,10 +89,22 @@ const deleteSparePart = async (req, res) => {
   }
 };
 
+// controllers/sparePartController.js
+const bulkInsert = async (req, res) => {
+  try {
+    const inserted = await SparePart.insertMany(req.body);
+    res.status(201).json(inserted);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
+
+
 module.exports = {
   getAllSpareParts,
   getSparePartById,
   createSparePart,
   updateSparePart,
   deleteSparePart,
+  bulkInsert,
 };
