@@ -56,7 +56,8 @@ const createSparePart = async (req, res) => {
       unit,
       buying_price,
       selling_price,
-      category: mongoose.Types.ObjectId(category), compatible_models,
+      category,
+      compatible_models,
     });
 
     res.status(201).json(newPart);
@@ -99,6 +100,34 @@ const bulkInsert = async (req, res) => {
   }
 };
 
+// Get low stock spare parts (qty <= threshold)
+const getLowStockParts = async (req, res) => {
+  try {
+    const threshold = parseInt(req.query.threshold) || 3;
+
+    const lowStock = await SparePart.find({ qty: { $lte: threshold } })
+      .populate('category', 'name')
+      .sort({ 'category.name': 1 });
+
+    res.json({
+      count: lowStock.length,
+      threshold,
+      parts: lowStock.map(part => ({
+        _id: part._id,
+        part_no: part.part_no,
+        code: part.code,
+        description: part.description,
+        qty: part.qty,
+        min: threshold,
+        category: part.category?.name || 'Uncategorized',
+      }))
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+
 
 module.exports = {
   getAllSpareParts,
@@ -107,4 +136,6 @@ module.exports = {
   updateSparePart,
   deleteSparePart,
   bulkInsert,
+  getLowStockParts,
 };
+
