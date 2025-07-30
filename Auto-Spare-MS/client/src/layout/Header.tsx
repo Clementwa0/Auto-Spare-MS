@@ -1,8 +1,67 @@
+import { useLocation } from "react-router-dom";
+import { Bell } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
 
-const Header = () => {
+const Navbar: React.FC = () => {
+  const location = useLocation();
+
+  const getPageTitle = (pathname: string) => {
+    const segments = pathname.split("/").filter(Boolean);
+    return segments.length ? segments[segments.length - 1] : "Dashboard";
+  };
+
+  const title = getPageTitle(location.pathname);
+
   return (
-    <div>Header</div>
-  )
-}
+    <header className="flex items-center justify-between px-4 md:px-6 h-16 border-b bg-white dark:bg-gray-900 dark:border-gray-800 shadow-sm">
+      {/* Left - Page Title */}
+      <h1 className="text-lg font-semibold capitalize text-gray-800 dark:text-white">
+        {title}
+      </h1>
 
-export default Header
+      {/* Right - Actions */}
+      <div className="flex items-center gap-4">
+        {/* Search */}
+        <input
+          type="text"
+          placeholder="Search..."
+          className="hidden md:block px-3 py-1.5 rounded-md bg-gray-100 dark:bg-gray-800 text-sm text-gray-800 dark:text-white border border-gray-300 dark:border-gray-700"
+        />
+
+        {/* Notifications */}
+        <Button size="icon" variant="ghost" className="relative">
+          <Bell className="w-5 h-5" />
+          <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />
+        </Button>
+
+        {/* Profile Dropdown */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Avatar className="cursor-pointer">
+              <AvatarImage src="/avatar.jpg" alt="User" />
+              <AvatarFallback>MC</AvatarFallback>
+            </Avatar>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem>Profile</DropdownMenuItem>
+            <DropdownMenuItem>Settings</DropdownMenuItem>
+            <DropdownMenuItem>Logout</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    </header>
+  );
+};
+
+export default Navbar;
