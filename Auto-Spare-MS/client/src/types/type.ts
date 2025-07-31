@@ -5,7 +5,7 @@ export interface Part {
   description: string;
   brand: string;
   unit: string;
-  category: Category | string;
+  category: string | Category;
   compatible_models: string[];
   qty: number;
   buying_price: number;
@@ -17,5 +17,11 @@ export interface Part {
 export interface Category {
   _id: string;
   name: string;
-  description?: string;
+}
+
+export interface Sale {
+  _id: string;
+  partId: string;
+  quantity: number;
+  date: string;
 }
