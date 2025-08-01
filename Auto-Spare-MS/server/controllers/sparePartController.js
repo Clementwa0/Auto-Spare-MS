@@ -69,9 +69,11 @@ const createSparePart = async (req, res) => {
 // Update spare part
 const updateSparePart = async (req, res) => {
   try {
-    const updated = await SparePart.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-    });
+    const updated = await SparePart.findByIdAndUpdate(
+      req.params.id,
+      { $set: req.body },
+      { new: true, runValidators: true }
+    );
     if (!updated) return res.status(404).json({ error: 'Spare part not found' });
     res.json(updated);
   } catch (err) {

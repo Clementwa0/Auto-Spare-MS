@@ -23,3 +23,12 @@ export const updatePartQty = async (
   const res = await api.patch(`/spare-parts/${partId}`, data);
   return res.data;
 };
+
+export async function createPart(data: any) {
+  try {
+    const res = await api.post("/spare-parts", data);
+    return res.data;
+  } catch (err: any) {
+    throw new Error(err.response?.data?.message || "Failed to create part");
+  }
+}

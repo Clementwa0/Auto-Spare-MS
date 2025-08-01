@@ -7,6 +7,7 @@ const categoryRoutes = require('./routes/Categories');
 const sparePartRoutes = require('./routes/sparePart');
 const authRoutes = require("./routes/auth");
 const userRoutes = require("./routes/users");
+const salesRoutes = require('./routes/sales');
 
 dotenv.config();
 connectDB();
@@ -20,7 +21,7 @@ app.use('/api/categories', categoryRoutes);
 app.use('/api/spare-parts', sparePartRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
-
+app.use('/api/sales', salesRoutes);
 
 const PORT = process.env.PORT;
 app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));

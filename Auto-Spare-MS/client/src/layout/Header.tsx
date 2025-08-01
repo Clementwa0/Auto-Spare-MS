@@ -2,20 +2,17 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@/components/ui/avatar";
-import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
+import { useAuth } from "@/context/AuthContext";
 
 const Navbar: React.FC = () => {
   const location = useLocation();
-    const navigate = useNavigate();
+  const navigate = useNavigate();
+  const {user} = useAuth();
 
   const getPageTitle = (pathname: string) => {
     const segments = pathname.split("/").filter(Boolean);
@@ -49,15 +46,15 @@ const Navbar: React.FC = () => {
         {/* Profile Dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Avatar className="cursor-pointer">
-              <AvatarImage src="/avatar.jpg" alt="User" />
-              <AvatarFallback>MC</AvatarFallback>
-            </Avatar>
+              <Button variant="outline" className="shadow-md">{user?.role}</Button>
+            
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem>Profile</DropdownMenuItem>
             <DropdownMenuItem>Settings</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => navigate("/login")}>Logout</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => navigate("/login")}>
+              Logout
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

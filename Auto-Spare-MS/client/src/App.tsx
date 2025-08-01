@@ -9,10 +9,13 @@ import {
   LowStockReport,
   NotFound,
   Layout,
+  AdminRoute,
+  Login,
+  POSPage,
+  ProtectedRoute,
+  CreateUser,
 } from "@/components/index";
 import { AuthProvider } from "./context/AuthContext";
-import ProtectedRoute from "./components/ProtectedRoute";
-import Login from "./components/Login";
 
 const App = () => {
   return (
@@ -20,6 +23,7 @@ const App = () => {
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<Login />} />
+
           <Route
             element={
               <ProtectedRoute>
@@ -28,13 +32,61 @@ const App = () => {
             }
           >
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
+
+            {/* Admin-only routes */}
+            <Route
+              path="/users/create"
+              element={
+                <AdminRoute>
+                  <CreateUser />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="/parts/new"
+              element={
+                <AdminRoute>
+                  <PartForm />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="/categories"
+              element={
+                <AdminRoute>
+                  <CategoryList />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="/suppliers"
+              element={
+                <AdminRoute>
+                  <SupplierList />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="/reports"
+              element={
+                <AdminRoute>
+                  <InventoryReport />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="/reports/low-stock"
+              element={
+                <AdminRoute>
+                  <LowStockReport />
+                </AdminRoute>
+              }
+            />
+
+            {/* Shared routes (Admin + Sales) */}
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/parts" element={<PartsList />} />
-            <Route path="/parts/new" element={<PartForm />} />
-            <Route path="/categories" element={<CategoryList />} />
-            <Route path="/suppliers" element={<SupplierList />} />
-            <Route path="/reports" element={<InventoryReport />} />
-            <Route path="/reports/low-stock" element={<LowStockReport />} />
+            <Route path="/pos-sale" element={<POSPage/>}/>
             <Route path="*" element={<NotFound />} />
           </Route>
         </Routes>

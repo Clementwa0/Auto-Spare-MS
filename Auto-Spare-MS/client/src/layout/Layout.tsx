@@ -8,7 +8,7 @@ const Layout = () => {
       <Sidebar />
       <div className="flex flex-1 flex-col">
         <Header />
-        <main className="flex-1 overflow-y-auto px-4 py-6 md:px-6 md:py-8">
+        <main className="flex-1 overflow-y-auto py-6 md:px-6 md:py-8">
           <Outlet />
         </main>
       </div>

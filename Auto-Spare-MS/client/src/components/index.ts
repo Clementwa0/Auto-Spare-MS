@@ -8,5 +8,10 @@ export { default as PartForm } from "./features/parts/PartForm";
 export { default as SupplierList } from "./features/suppliers/SupplierList";
 export { default as InventoryReport } from "./features/reports/InventoryReport";
 export { default as LowStockReport } from "./features/reports/LowStockReport";
-export { default as NotFound } from "./pages/NotFound";
+export { default as NotFound } from "./NotFound";
 export { default as CategoryList } from "./features/categories/CategoryList"
+export {default as CreateUser} from "./pages/CreateUser"
+export {default as AdminRoute} from "./AdminRoute"
+export {default as ProtectedRoute } from "./ProtectedRoute"
+export {default as Login } from "./Login"
+export {default as POSPage} from "@/components/features/pos/POSPage"
