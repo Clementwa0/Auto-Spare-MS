@@ -1,10 +1,5 @@
 import { useEffect, useState } from "react";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -51,7 +46,8 @@ export default function Parts() {
   const getStockBadge = (qty: number) => {
     if (qty === 0) return <Badge variant="destructive">Out of Stock</Badge>;
     if (qty < 10) return <Badge variant="destructive">Low Stock</Badge>;
-    if (qty < 50) return <Badge className="bg-yellow-500 text-white">Medium Stock</Badge>;
+    if (qty < 50)
+      return <Badge className="bg-yellow-500 text-white">Medium Stock</Badge>;
     return <Badge className="bg-green-600 text-white">In Stock</Badge>;
   };
 
@@ -62,7 +58,9 @@ export default function Parts() {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold">Parts Inventory</h1>
-          <p className="text-muted-foreground">Manage your spare parts inventory</p>
+          <p className="text-muted-foreground">
+            Manage your spare parts inventory
+          </p>
         </div>
         <Link to="/parts/new">
           <Button className="flex items-center gap-2">
@@ -115,7 +113,12 @@ export default function Parts() {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge variant="outline">{part.category?.name || "N/A"}</Badge>
+                      <Badge variant="outline">
+                        {typeof part.category === "object" &&
+                        "name" in part.category
+                          ? part.category.name
+                          : "N/A"}
+                      </Badge>
                     </TableCell>
                     <TableCell>
                       <div className="flex flex-col gap-1">
@@ -136,7 +139,11 @@ export default function Parts() {
                     <TableCell>
                       <div className="space-y-1">
                         {part.compatible_models.slice(0, 2).map((model, i) => (
-                          <Badge key={i} variant="secondary" className="text-xs">
+                          <Badge
+                            key={i}
+                            variant="secondary"
+                            className="text-xs"
+                          >
                             {model}
                           </Badge>
                         ))}
@@ -154,7 +161,11 @@ export default function Parts() {
                             <Edit className="h-4 w-4" />
                           </Button>
                         </Link>
-                        <Button variant="outline" size="sm" className="text-destructive">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="text-destructive"
+                        >
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
