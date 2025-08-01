@@ -46,12 +46,15 @@ const getSales = async (req, res) => {
       filter.date = { $gte: startOfDay };
     }
 
-    const sales = await Sale.find(filter).populate('part');
+
+    const sales = await Sale.find(filter);
     res.status(200).json(sales);
   } catch (err) {
+    console.error("Error fetching sales:", err); // Add this
     res.status(500).json({ error: 'Failed to fetch sales' });
   }
 };
+
 
 module.exports = {
   createSale,
