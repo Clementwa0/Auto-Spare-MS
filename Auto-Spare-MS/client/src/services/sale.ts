@@ -1,11 +1,19 @@
 import api from "@/lib/api";
 
-interface SaleInput {
-  partId: string;
-  quantity: number;
+interface SaleItem {
+  part: string;
+  qty: number;
+  selling_price: number;
+  buying_price: number;
 }
 
-export const createSale = async ({ partId, quantity }: SaleInput) => {
-  const res = await api.post("/sales", { partId, quantity });
+
+export const createSale = async ({ items }: { items: SaleItem[] }) => {
+  const res = await api.post("/sales", { items });
   return res.data;
+};
+
+export const fetchTodaySales = async () => {
+  const res = await api.get("/sales?today=true");
+  return res.data; 
 };

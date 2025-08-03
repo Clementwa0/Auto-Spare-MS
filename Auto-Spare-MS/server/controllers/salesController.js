@@ -1,39 +1,51 @@
-const Sale = require('../models/sale');
-const SparePart = require('../models/SpareParts');
+const Sale = require("../models/sale");
+const SparePart = require("../models/SpareParts");
 
-// POST /api/sales → Create a new sale and deduct from part
+// POST /api/sales – Accepts full cart
 const createSale = async (req, res) => {
   try {
-    const { partId, quantity } = req.body;
+    const { items } = req.body;
 
-    if (!partId || !quantity || quantity <= 0) {
-      return res.status(400).json({ error: 'Invalid sale data' });
+    if (!Array.isArray(items) || items.length === 0) {
+      return res.status(400).json({ error: "No sale items provided" });
     }
 
-    const part = await SparePart.findById(partId);
-    if (!part) return res.status(404).json({ error: 'Part not found' });
+    let total = 0;
 
-    if (part.qty < quantity) {
-      return res.status(400).json({ error: 'Not enough stock available' });
+    for (const item of items) {
+      const { part, qty, selling_price, buying_price } = item;
+
+      if (!part || !qty || qty <= 0 || !selling_price || !buying_price) {
+        return res.status(400).json({ error: "Invalid sale item data" });
+      }
+
+      const partDoc = await SparePart.findById(part);
+      if (!partDoc) return res.status(404).json({ error: `Part not found: ${part}` });
+
+      if (partDoc.qty < qty) {
+        return res.status(400).json({ error: `Not enough stock for ${partDoc.description}` });
+      }
+
+      // Deduct stock
+      partDoc.qty -= qty;
+      await partDoc.save();
+
+      total += selling_price * qty;
     }
 
-    // Create the sale record
     const sale = await Sale.create({
-      part: partId,
-      quantity,
-      total: part.selling_price * quantity,
+      items,
+      total,
       date: new Date(),
     });
 
-    // Deduct quantity
-    part.qty -= quantity;
-    await part.save();
-
-    res.status(201).json({ message: 'Sale completed', sale });
+    res.status(201).json({ message: "Sale completed", sale });
   } catch (err) {
+    console.error("Create sale error:", err);
     res.status(500).json({ error: err.message });
   }
 };
+
 
 const getSales = async (req, res) => {
   try {
