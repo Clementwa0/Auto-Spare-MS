@@ -16,7 +16,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
-import {CreditCard, List } from "lucide-react";
+import { List } from "lucide-react";
 
 interface Sale {
   _id: string;
@@ -50,11 +50,11 @@ export default function AdminDashboard() {
     loadSales();
   }, []);
 
-  const transactionCount = sales.length;
+  // const transactionCount = sales.length;
 
   return (
-    <div className="p-4 md:p-6 space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+    <div className="p-1 md:p-2 space-y-6">
+      {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
         <Card className="shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Transactions</CardTitle>
@@ -70,7 +70,7 @@ export default function AdminDashboard() {
             )}
           </CardContent>
         </Card>
-      </div>
+      </div> */}
 
       <Card className="shadow-sm">
         <CardHeader>
