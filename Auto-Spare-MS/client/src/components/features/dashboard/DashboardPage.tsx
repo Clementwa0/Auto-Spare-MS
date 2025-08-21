@@ -83,8 +83,11 @@ export default function AdminDashboard() {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+       
+       <Link
+       to="/parts">
         <StatCard title="Total Parts" value={stats.totalParts} icon={Package} />
-
+        </Link> 
         <Link
           to="/reports/low-stock"
           className="block transition-transform hover:scale-[1.02]"
