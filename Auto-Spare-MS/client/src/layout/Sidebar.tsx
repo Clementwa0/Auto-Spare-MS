@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { LucideMenu, SidebarClose, SidebarOpen } from "lucide-react";
+import { LucideMenu, SidebarClose, SidebarOpen, X } from "lucide-react";
 import { links } from "@/constants";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -22,13 +22,13 @@ const Sidebar: React.FC = () => {
     <div>
       {/* Mobile Toggle Button */}
       {isMobile && (
-        <div className="fixed top-0 left-4 z-50 bg-white dark:bg-gray-900 p-2 rounded-md shadow-md">
+        <div className="fixed top-0 left-4 z-50 bg-white dark:bg-gray-900 p-2">
           <Button
             onClick={toggleMenu}
-            className="h-10 w-10 text-gray-900 dark:text-white"
+            className="h-10 w-10 shadow-none  border-none text-gray-900 dark:text-white "
             variant="ghost"
           >
-            {menuOpen ? <SidebarClose /> : <LucideMenu />}
+            {menuOpen ? <X /> : <LucideMenu className="w-10 h-10"/>}
           </Button>
         </div>
       )}
