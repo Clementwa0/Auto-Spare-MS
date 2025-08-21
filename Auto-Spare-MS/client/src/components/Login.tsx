@@ -48,7 +48,7 @@ const Login: React.FC = () => {
           
          
         }}>
-          <div className="absolute inset-0 bg-black/70 z-0"></div>
+          <div className="absolute inset-0 bg-black/70 min-h-screen z-0"></div>
            <div className="relative z-10">
         <CardHeader className="space-y-1 pb-4 ">
           <div className="flex justify-center mb-2">
