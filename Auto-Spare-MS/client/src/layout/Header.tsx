@@ -8,11 +8,11 @@ import {
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/context/AuthContext";
-
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 const Navbar: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const {user} = useAuth();
+  const { user } = useAuth();
 
   const getPageTitle = (pathname: string) => {
     const segments = pathname.split("/").filter(Boolean);
@@ -22,32 +22,30 @@ const Navbar: React.FC = () => {
   const title = getPageTitle(location.pathname);
 
   return (
-    <header className="flex items-center justify-between px-4 md:px-6 h-16 border-b bg-white dark:bg-gray-900 dark:border-gray-800 shadow-sm">
+    <header className="flex  justify-end md:flex items-center justify-between px-4 md:px-6 h-16 border-b bg-white dark:bg-gray-900 dark:border-gray-800 shadow-sm">
       {/* Left - Page Title */}
-      <h1 className="text-lg font-semibold capitalize text-gray-800 dark:text-white">
+      <h1 className="hidden md:text-lg font-semibold capitalize text-gray-800 dark:text-white">
         {title}
       </h1>
 
-      {/* Right - Actions */}
       <div className="flex items-center gap-4">
-        {/* Search */}
         <input
           type="text"
           placeholder="Search..."
           className="hidden md:block px-3 py-1.5 rounded-md bg-gray-100 dark:bg-gray-800 text-sm text-gray-800 dark:text-white border border-gray-300 dark:border-gray-700"
         />
 
-        {/* Notifications */}
         <Button size="icon" variant="ghost" className="relative">
           <Bell className="w-5 h-5" />
           <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />
         </Button>
 
-        {/* Profile Dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="shadow-md">{user?.role}</Button>
-            
+            <Avatar>
+              <AvatarImage src="/srcy/assets/Admin.png" />
+              <AvatarFallback>{user?.role}</AvatarFallback>
+            </Avatar>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem>Profile</DropdownMenuItem>
