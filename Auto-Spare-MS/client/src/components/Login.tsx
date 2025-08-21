@@ -41,7 +41,7 @@ const Login: React.FC = () => {
 
       <Card className=" w-full max-w-md   border-0 shadow-2xl "
         style={{
-          backgroundImage: "url('/src/assets/bg.png')",
+          backgroundImage: "url('/assets/bg.png')",
           backgroundSize: "cover",
           backgroundRepeat: "no-repeat",
           backgroundPosition: "center",
