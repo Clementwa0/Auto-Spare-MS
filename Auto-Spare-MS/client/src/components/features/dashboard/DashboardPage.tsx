@@ -5,14 +5,13 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
-  CardFooter,
 } from "@/components/ui/card";
-import { DollarSign, Package, AlertTriangle, ArrowRight } from "lucide-react";
+import { DollarSign, Package, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
-import DashboardCard from "./DashboardCard";
-import OutOfStockCard from "./OutOfStock";
 import type { Part } from "@/types/type";
 import { Link } from "react-router-dom";
+import DashboardCard from "./DashboardCard";
+import OutOfStock from "../reports/OutOfStock";
 
 interface DashboardStats {
   totalParts: number;
@@ -51,53 +50,6 @@ const StatCard = ({
   </Card>
 );
 
-const LowStockCard = ({ items }: { items: Part[] }) => {
-  return (
-    <Card
-      id="low-stock-section"
-      className="border-l-4 border-yellow-500 bg-yellow-50"
-    >
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-yellow-800">
-          <AlertTriangle className="w-5 h-5" />
-          Low Stock Items
-        </CardTitle>
-      </CardHeader>
-      <ul>
-        {items.length === 0 ? (
-          <p className="text-gray-500 italic">No low stock items</p>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {items.map((item) => (
-              <div
-                key={item._id}
-                className="flex items-center justify-between p-3 bg-white rounded-lg border border-yellow-100 shadow-sm hover:shadow-md transition-shadow"
-              >
-                <span className="font-medium text-gray-800 truncate">
-                  {item.description}
-                </span>
-                <span className="ml-2 px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-medium whitespace-nowrap">
-                  Stock: {item.qty}
-                </span>
-              </div>
-            ))}
-          </div>
-        )}
-      </ul>
-      {items.length > 0 && (
-        <CardFooter className="border-t border-yellow-100 pt-4">
-          <Link
-            to="/inventory?stockStatus=low"
-            className="flex items-center gap-1 text-yellow-700 hover:text-yellow-900 font-medium transition-colors"
-          >
-            View all low stock items <ArrowRight className="w-4 h-4" />
-          </Link>
-        </CardFooter>
-      )}
-    </Card>
-  );
-};
-
 export default function AdminDashboard() {
   const [stats, setStats] = useState<DashboardStats>({
     totalParts: 0,
@@ -134,8 +86,9 @@ export default function AdminDashboard() {
         <StatCard title="Total Parts" value={stats.totalParts} icon={Package} />
 
         <Link
-          to="#low-stock-section"
+          to="/reports/low-stock"
           className="block transition-transform hover:scale-[1.02]"
+          aria-label="View Low Stock Items"
         >
           <StatCard
             title="Low Stock Items"
@@ -164,18 +117,19 @@ export default function AdminDashboard() {
         />
       </div>
 
+      {/* Out of Stock Section */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <div>
           <DashboardCard />
           {stats.outOfStockParts.length > 0 && (
-            <OutOfStockCard
+            <OutOfStock
               items={stats.outOfStockParts}
               viewAllLink="/inventory?stockStatus=out"
             />
           )}
         </div>
-        <div>
-          <LowStockCard items={stats.lowStockParts} />
+         <div>
+          
         </div>
       </div>
     </div>
