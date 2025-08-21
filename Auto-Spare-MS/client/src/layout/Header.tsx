@@ -43,7 +43,7 @@ const Navbar: React.FC = () => {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Avatar>
-              <AvatarImage src="/srcy/assets/Admin.png" />
+              <AvatarImage src="/src/assets/Admin.png" />
               <AvatarFallback>{user?.role}</AvatarFallback>
             </Avatar>
           </DropdownMenuTrigger>

@@ -6,12 +6,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { DollarSign, Package, AlertTriangle } from "lucide-react";
+import { DollarSign, Package, AlertTriangle} from "lucide-react";
 import { toast } from "sonner";
 import type { Part } from "@/types/type";
 import { Link } from "react-router-dom";
 import DashboardCard from "./DashboardCard";
 import OutOfStock from "../reports/OutOfStock";
+import Loader from "@/constants/Loader";
 
 interface DashboardStats {
   totalParts: number;
@@ -50,6 +51,7 @@ const StatCard = ({
   </Card>
 );
 
+
 export default function AdminDashboard() {
   const [stats, setStats] = useState<DashboardStats>({
     totalParts: 0,
@@ -60,17 +62,32 @@ export default function AdminDashboard() {
     lowStockParts: [],
   });
 
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     const loadStats = async () => {
+      setLoading(true);
       try {
         const data = await fetchDashboardStats();
         setStats(data);
       } catch (error) {
         toast.error("Failed to load dashboard data");
+      } finally {
+        setLoading(false);
       }
     };
     loadStats();
   }, []);
+
+  if (loading)
+  return (
+    <div className="flex flex-col items-center justify-center py-20">
+      <Loader />
+      <p className="mt-4 text-gray-600 text-lg font-medium">
+        Loading dashboard items...
+      </p>
+    </div>
+  );
 
   return (
     <div className="space-y-6 p-4 md:p-6">
@@ -83,11 +100,9 @@ export default function AdminDashboard() {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-       
-       <Link
-       to="/parts">
-        <StatCard title="Total Parts" value={stats.totalParts} icon={Package} />
-        </Link> 
+        <Link to="/parts">
+          <StatCard title="Total Parts" value={stats.totalParts} icon={Package} />
+        </Link>
         <Link
           to="/reports/low-stock"
           className="block transition-transform hover:scale-[1.02]"
@@ -131,9 +146,7 @@ export default function AdminDashboard() {
             />
           )}
         </div>
-         <div>
-          
-        </div>
+        <div></div>
       </div>
     </div>
   );

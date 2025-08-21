@@ -1,6 +1,11 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const Login: React.FC = () => {
   const { login } = useAuth();
@@ -9,13 +14,14 @@ const Login: React.FC = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setLoading(true);
-    
+
     try {
       await login(email, password);
       navigate("/dashboard");
@@ -28,38 +34,69 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-xl overflow-hidden">
-        <div className="bg-gradient-to-r from-blue-600 to-indigo-700 p-6 text-center">
-          <h1 className="text-3xl font-bold text-white">Welcome Back</h1>
-          <p className="text-blue-100 mt-2">Sign in to your account</p>
-        </div>
-        
-        <div className="p-8">
+    <div
+      className="min-h-screen flex items-center justify-center p-4 bg-cover bg-center bg-no-repeat"
+    >
+      {/* Overlay for better readability */}
+
+      <Card className=" w-full max-w-md   border-0 shadow-2xl "
+        style={{
+          backgroundImage: "url('/src/assets/bg.png')",
+          backgroundSize: "cover",
+          backgroundRepeat: "no-repeat",
+          backgroundPosition: "center",
+          
+         
+        }}>
+          <div className="absolute inset-0 bg-black/70 z-0"></div>
+           <div className="relative z-10">
+        <CardHeader className="space-y-1 pb-4 ">
+          <div className="flex justify-center mb-2">
+<div className="bg-white/20 backdrop-blur-sm p-3 rounded-full border border-white/30">              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-8 w-8 text-white"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+              </svg>
+            </div>
+          </div>
+          <CardTitle className="text-2xl font-bold text-center text-white">
+              Welcome Back
+            </CardTitle>
+           <p className="text-sm text-center text-white">
+              Sign in to your account
+            </p>
+        </CardHeader>
+
+        <CardContent className="z-10">
           {error && (
-            <div className="mb-6 p-3 bg-red-50 text-red-700 rounded-lg flex items-center">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+            <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-lg flex items-center text-sm "
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
               </svg>
               {error}
             </div>
           )}
-          
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+
+          <form onSubmit={handleSubmit} className="space-y-4 "
+          >
+            <div className="space-y-2">
+              <Label htmlFor="email" className="text-gray-100">
                 Email Address
-              </label>
+              </Label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-100" viewBox="0 0 20 20" fill="currentColor">
                     <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
                     <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
                   </svg>
                 </div>
-                <input
+                <Input
                   id="email"
-                  className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                  className="pl-10 text-white"
                   type="email"
                   placeholder="Email"
                   value={email}
@@ -70,19 +107,19 @@ const Login: React.FC = () => {
               </div>
             </div>
 
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+            <div className="space-y-2">
+              <Label htmlFor="password" className="text-gray-100">
                 Password
-              </label>
+              </Label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-100" viewBox="0 0 20 20" fill="currentColor">
                     <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
                   </svg>
                 </div>
-                <input
+                <Input
                   id="password"
-                  className="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                  className="pl-10 pr-10 text-white"
                   type={showPassword ? "text" : "password"}
                   placeholder="Password"
                   value={password}
@@ -96,10 +133,10 @@ const Login: React.FC = () => {
                   className="absolute inset-y-0 right-0 pr-3 flex items-center"
                   onClick={() => setShowPassword(!showPassword)}
                 >
-                  <svg 
-                    xmlns="http://www.w3.org/2000/svg" 
-                    className={`h-5 w-5 ${showPassword ? "text-blue-600" : "text-gray-400"}`} 
-                    viewBox="0 0 20 20" 
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className={`h-5 w-5 ${showPassword ? "text-blue-600" : "text-gray-100"}`}
+                    viewBox="0 0 20 20"
                     fill="currentColor"
                   >
                     {showPassword ? (
@@ -113,32 +150,23 @@ const Login: React.FC = () => {
                   </svg>
                 </button>
               </div>
-              {/* <div className="mt-1 text-right">
-                <a href="#" className="text-sm text-blue-600 hover:text-blue-800">
-                  Forgot password?
-                </a>
-              </div> */}
             </div>
 
-            <div className="flex items-center">
-              <input
+            <div className="flex items-center space-x-2">
+              <Checkbox
                 id="remember-me"
-                type="checkbox"
-                className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                checked={rememberMe}
+                onCheckedChange={(checked) => setRememberMe(checked as boolean)}
               />
-              <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
+              <Label htmlFor="remember-me" className="text-sm text-gray-100 cursor-pointer">
                 Remember me
-              </label>
+              </Label>
             </div>
 
-            <button
+            <Button
               type="submit"
               disabled={loading}
-              className={`w-full py-3 px-4 rounded-lg text-white font-medium transition ${
-                loading 
-                  ? "bg-gray-400 cursor-not-allowed" 
-                  : "bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 shadow-md"
-              }`}
+              className="w-full py-3 text-base"
             >
               {loading ? (
                 <span className="flex items-center justify-center">
@@ -151,26 +179,11 @@ const Login: React.FC = () => {
               ) : (
                 "Sign In"
               )}
-            </button>
+            </Button>
           </form>
-
-          {/* <div className="mt-8 text-center">
-            <p className="text-sm text-gray-600">
-              Don't have an account?{" "}
-              <a 
-                href="#" 
-                className="font-medium text-blue-600 hover:text-blue-800"
-                onClick={(e) => {
-                  e.preventDefault();
-                  navigate("/register");
-                }}
-              >
-                Create account
-              </a>
-            </p>
-          </div> */}
+        </CardContent>
         </div>
-      </div>
+      </Card>
     </div>
   );
 };

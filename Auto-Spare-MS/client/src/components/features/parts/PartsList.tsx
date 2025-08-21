@@ -8,6 +8,7 @@ import { Link } from "react-router-dom";
 import { fetchPartsByCategory } from "@/services/part";
 import { fetchCategories } from "@/services/category";
 import type { Part, Category } from "@/types/type";
+import Loader from "@/constants/Loader";
 
 export default function Parts() {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -33,6 +34,8 @@ export default function Parts() {
     };
     loadParts();
   }, [selectedCategory]);
+  
+  if (loading) return <Loader />;
 
   const filteredParts = parts.filter((part) =>
     [part.description, part.part_no, part.code, part.brand]

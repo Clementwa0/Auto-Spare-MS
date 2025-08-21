@@ -26,7 +26,7 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
-import { Plus, Edit, Trash2, Boxes, Search} from "lucide-react";
+import { Plus, Edit, Trash2, Boxes, Search, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import {
   fetchCategories,
@@ -44,6 +44,7 @@ export default function Categories() {
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState("");
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const handleResize = () => {
@@ -56,12 +57,19 @@ export default function Categories() {
 
   useEffect(() => {
     const loadData = async () => {
-      const [catData, partData] = await Promise.all([
-        fetchCategories(),
-        fetchParts(),
-      ]);
-      setCategories(catData);
-      setParts(partData);
+      setLoading(true);
+      try {
+        const [catData, partData] = await Promise.all([
+          fetchCategories(),
+          fetchParts(),
+        ]);
+        setCategories(catData);
+        setParts(partData);
+      } catch (error) {
+        toast.error("Failed to load data");
+      } finally {
+        setLoading(false);
+      }
     };
     loadData();
   }, []);
@@ -75,8 +83,7 @@ export default function Categories() {
       (p) => typeof p.category !== "string" && p.category._id === categoryId
     );
 
-  const getPartsCount = (categoryId: string) =>
-    getPartsForCategory(categoryId).length;
+  const getPartsCount = (categoryId: string) => getPartsForCategory(categoryId).length;
 
   const getTotalValue = (categoryId: string) =>
     getPartsForCategory(categoryId).reduce(
@@ -111,7 +118,7 @@ export default function Categories() {
   const MobileCategoryCard = ({ category }: { category: Category }) => {
     const count = getPartsCount(category._id);
     const totalValue = getTotalValue(category._id);
-    
+
     return (
       <Card className="mb-4">
         <CardHeader className="pb-2">
@@ -162,7 +169,7 @@ export default function Categories() {
             Organize your spare parts into categories
           </p>
         </div>
-        
+
         {isMobile ? (
           <Drawer open={isMobileDrawerOpen} onOpenChange={setIsMobileDrawerOpen}>
             <DrawerTrigger asChild>
@@ -208,7 +215,7 @@ export default function Categories() {
                     </form>
                   </DialogContent>
                 </Dialog>
-                
+
                 <div className="relative w-full">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
@@ -272,125 +279,100 @@ export default function Categories() {
         </div>
       )}
 
-      {/* Mobile Category List */}
-      {isMobile ? (
-        <div className="mt-4">
-          <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-            <Boxes className="h-5 w-5" />
-            All Categories ({filteredCategories.length})
-          </h2>
-          
-          {filteredCategories.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              No categories found
-            </div>
-          ) : (
-            <div className="pb-4">
-              {filteredCategories.map((category) => (
-                <MobileCategoryCard key={category._id} category={category} />
-              ))}
-            </div>
-          )}
+      {/* Loading Indicator */}
+      {loading ? (
+        <div className="flex justify-center items-center h-64">
+          <div className="text-center">
+            <Loader2 className="w-8 h-8 animate-spin mx-auto text-amber-600" />
+            <p className="mt-2 text-gray-600">Loading categories...</p>
+          </div>
         </div>
       ) : (
-        /* Desktop Category Table */
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Boxes className="h-5 w-5" />
-              All Categories ({filteredCategories.length})
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Category</TableHead>
-                    <TableHead>Parts Count</TableHead>
-                    <TableHead>Total Value</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredCategories.map((category) => {
-                    const count = getPartsCount(category._id);
-                    const totalValue = getTotalValue(category._id);
-                    
-                    return (
-                      <TableRow key={category._id}>
-                        <TableCell className="font-medium">{category.name}</TableCell>
-                        <TableCell>
-                          <Badge variant={count > 0 ? "default" : "secondary"}>
-                            {count} parts
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          KES {totalValue.toLocaleString()}
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex gap-2">
-                            <Button size="sm" variant="outline">
-                              <Edit className="w-4 h-4" />
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="text-destructive"
-                              disabled={count > 0}
-                              onClick={() =>
-                                handleDeleteCategory(category._id, category.name)
-                              }
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
+        <>
+          {/* Mobile Category List */}
+          {isMobile ? (
+            <div className="mt-4">
+              <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                <Boxes className="h-5 w-5" />
+                All Categories ({filteredCategories.length})
+              </h2>
+
+              {filteredCategories.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  No categories found
+                </div>
+              ) : (
+                <div className="pb-4">
+                  {filteredCategories.map((category) => (
+                    <MobileCategoryCard key={category._id} category={category} />
+                  ))}
+                </div>
+              )}
             </div>
-          </CardContent>
-        </Card>
-      )}
+          ) : (
+            /* Desktop Category Table */
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Boxes className="h-5 w-5" />
+                  All Categories ({filteredCategories.length})
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Category</TableHead>
+                        <TableHead>Parts Count</TableHead>
+                        <TableHead>Total Value</TableHead>
+                        <TableHead>Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {filteredCategories.map((category) => {
+                        const count = getPartsCount(category._id);
+                        const totalValue = getTotalValue(category._id);
 
-      {/* Stats Section - Desktop only */}
-      {!isMobile && (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {filteredCategories.map((cat) => {
-            const count = getPartsCount(cat._id);
-            const totalValue = getTotalValue(cat._id);
-
-            return (
-              <Card key={cat._id}>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-base flex items-center gap-2">
-                    <div className="w-6 h-6 bg-primary/10 rounded flex items-center justify-center">
-                      <Boxes className="h-3 w-3 text-primary" />
-                    </div>
-                    {cat.name}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Parts:</span>
-                      <span className="font-medium">{count}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Value:</span>
-                      <span className="font-medium">
-                        KES {totalValue.toLocaleString()}
-                      </span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
+                        return (
+                          <TableRow key={category._id}>
+                            <TableCell className="font-medium">{category.name}</TableCell>
+                            <TableCell>
+                              <Badge variant={count > 0 ? "default" : "secondary"}>
+                                {count} parts
+                              </Badge>
+                            </TableCell>
+                            <TableCell>
+                              KES {totalValue.toLocaleString()}
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex gap-2">
+                                <Button size="sm" variant="outline">
+                                  <Edit className="w-4 h-4" />
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="text-destructive"
+                                  disabled={count > 0}
+                                  onClick={() =>
+                                    handleDeleteCategory(category._id, category.name)
+                                  }
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </>
       )}
     </div>
   );
