@@ -6,14 +6,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-  import { DollarSign, Package, AlertTriangle} from "lucide-react";
+import { DollarSign, Package, AlertTriangle} from "lucide-react";
 import { toast } from "sonner";
 import type { Part } from "@/types/type";
 import { Link } from "react-router-dom";
 import DashboardCard from "./DashboardCard";
 import OutOfStock from "../reports/OutOfStock";
 import Loader from "@/constants/Loader";
-import { Package } from "lucide-react";
 
 interface DashboardStats {
   totalParts: number;
