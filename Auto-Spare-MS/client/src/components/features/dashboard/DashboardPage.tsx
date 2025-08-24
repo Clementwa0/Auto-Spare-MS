@@ -5,13 +5,13 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-// import { DollarSign, Package, AlertTriangle} from "lucide-react";
+} from "@/components/ui/card"
+  import { DollarSign, Package, AlertTriangle} from "lucide-react";
 import { toast } from "sonner";
 import type { Part } from "@/types/type";
 import { Link } from "react-router-dom";
-// import DashboardCard from "./DashboardCard";
-// import OutOfStock from "../reports/OutOfStock";
+import DashboardCard from "./DashboardCard";
+import OutOfStock from "../reports/OutOfStock";
 import Loader from "@/constants/Loader";
 import { Package } from "lucide-react";
 
@@ -104,7 +104,7 @@ export default function AdminDashboard() {
         <Link to="/parts">
           <StatCard title="Total Parts" value={stats.totalParts} icon={Package} />
         </Link>
-        {/* <Link
+        <Link
           to="/reports/low-stock"
           className="block transition-transform hover:scale-[1.02]"
           aria-label="View Low Stock Items"
@@ -133,11 +133,11 @@ export default function AdminDashboard() {
           value={`KES ${stats.totalExpenses.toLocaleString()}`}
           icon={DollarSign}
           color="text-red-500"
-        /> */}
+        />
       </div>
 
       {/* Out of Stock Section */}
-      {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <div>
           <DashboardCard />
           {stats.outOfStockParts.length > 0 && (
@@ -147,7 +147,7 @@ export default function AdminDashboard() {
             />
           )}
         </div>
-      </div> */}
+      </div> 
     </div>
   );
 }
