@@ -11,6 +11,8 @@ import {
   Layout,
   AdminRoute,
   Login,
+  Register,
+  BranchSetup,
   POSPage,
   ProtectedRoute,
   CreateUser,
@@ -23,6 +25,7 @@ const App = () => {
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
 
           <Route
             element={
@@ -32,6 +35,16 @@ const App = () => {
             }
           >
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
+
+            {/* Bootstrap admin must create a branch before anything else works. */}
+            <Route
+              path="/branch/setup"
+              element={
+                <AdminRoute>
+                  <BranchSetup />
+                </AdminRoute>
+              }
+            />
 
             {/* Admin-only routes */}
             <Route
@@ -86,7 +99,7 @@ const App = () => {
             {/* Shared routes (Admin + Sales) */}
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/parts" element={<PartsList />} />
-            <Route path="/pos-sale" element={<POSPage/>}/>
+            <Route path="/pos-sale" element={<POSPage />} />
             <Route path="*" element={<NotFound />} />
           </Route>
         </Routes>
