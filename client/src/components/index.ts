@@ -11,7 +11,9 @@ export { default as LowStockReport } from "./features/reports/LowStockReport";
 export { default as NotFound } from "./NotFound";
 export { default as CategoryList } from "./features/categories/CategoryList"
 export {default as CreateUser} from "./pages/CreateUser"
+export {default as BranchSetup} from "./pages/BranchSetup"
 export {default as AdminRoute} from "./AdminRoute"
 export {default as ProtectedRoute } from "./ProtectedRoute"
 export {default as Login } from "./Login"
+export {default as Register } from "./Register"
 export {default as POSPage} from "@/components/features/pos/POSPage"

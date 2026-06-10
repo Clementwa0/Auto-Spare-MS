@@ -1,19 +1,20 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
-import { createUser } from "@/services/user";
+import { createUser, type NewUser } from "@/services/user";
 import { UserPlus, Eye, EyeOff, XCircle } from "lucide-react";
 
 const CreateUser: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  const [form, setForm] = useState({
-    name: "",
-    email: "",
-    password: "",
-    role: "sales",
-  });
+  const [form, setForm] = useState<NewUser>({
+  name: "",
+  email: "",
+  password: "",
+  role: "sales",
+});
+
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -41,10 +42,26 @@ const CreateUser: React.FC = () => {
     );
   }
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-    setError("");
-  };
+const handleChange = (
+  e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+) => {
+  const { name, value } = e.target;
+
+  if (name === "role") {
+    setForm((prev) => ({
+      ...prev,
+      role: value as NewUser["role"],
+    }));
+  } else if (name === "name") {
+    setForm((prev) => ({ ...prev, name: value }));
+  } else if (name === "email") {
+    setForm((prev) => ({ ...prev, email: value }));
+  } else if (name === "password") {
+    setForm((prev) => ({ ...prev, password: value }));
+  }
+
+  setError("");
+};
 
   const validateForm = () => {
     if (!form.name.trim()) {

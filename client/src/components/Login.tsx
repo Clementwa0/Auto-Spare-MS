@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -181,6 +181,12 @@ const Login: React.FC = () => {
               )}
             </Button>
           </form>
+          <p className="mt-4 text-sm text-center text-gray-200">
+            First time here?{" "}
+            <Link to="/register" className="underline text-white">
+              Create the admin account
+            </Link>
+          </p>
         </CardContent>
         </div>
       </Card>

@@ -92,8 +92,8 @@ export default function AdminDashboard() {
   return (
     <div className="space-y-6 p-4 md:p-6">
       <div className="mb-4">
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
-          Admin Dashboard
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-800">
+          {`Welcome back, Admin!`}
         </h1>
         <p className="text-gray-600">Overview of sales and inventory</p>
       </div>
