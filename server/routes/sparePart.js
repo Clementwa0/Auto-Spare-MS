@@ -8,8 +8,10 @@ const {
   bulkInsert,
   getLowStockParts,
 } = require('../controllers/sparePartController');
+const { protect, requireBranch } = require('../middleware/authMiddleware');
 
 const router = express.Router();
+router.use(protect, requireBranch);
 
 router.get('/', getAllSpareParts);
 router.get('/low-stock', getLowStockParts); 
