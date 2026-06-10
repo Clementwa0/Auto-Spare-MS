@@ -1,12 +1,13 @@
 const SparePart = require('../models/SpareParts');
 const Category = require('../models/Category');
+const { getBranchFilter } = require('../middleware/authMiddleware');
 
 // Get all spare parts (with optional filters)
 const getAllSpareParts = async (req, res) => {
   try {
     const { category, model } = req.query;
 
-    const filter = {};
+    const filter = { ...getBranchFilter(req) };
     if (category) filter.category = category;
     if (model) filter.compatible_models = { $in: [model] };
 
@@ -20,7 +21,7 @@ const getAllSpareParts = async (req, res) => {
 // Get single spare part by ID
 const getSparePartById = async (req, res) => {
   try {
-    const part = await SparePart.findById(req.params.id).populate('category', 'name');
+    const part = await SparePart.findOne({ _id: req.params.id, ...getBranchFilter(req) }).populate('category', 'name');
     if (!part) return res.status(404).json({ error: 'Spare part not found' });
     res.json(part);
   } catch (err) {
@@ -44,7 +45,7 @@ const createSparePart = async (req, res) => {
       compatible_models,
     } = req.body;
 
-    const found = await Category.findById(category);
+    const found = await Category.findOne({ _id: category, ...getBranchFilter(req) });
     if (!found) return res.status(400).json({ error: 'Invalid category ID' });
 
     const newPart = await SparePart.create({
@@ -58,6 +59,7 @@ const createSparePart = async (req, res) => {
       selling_price,
       category,
       compatible_models,
+      branch: req.branchId,
     });
 
     res.status(201).json(newPart);
@@ -69,9 +71,17 @@ const createSparePart = async (req, res) => {
 // Update spare part
 const updateSparePart = async (req, res) => {
   try {
-    const updated = await SparePart.findByIdAndUpdate(
-      req.params.id,
-      { $set: req.body },
+    if (req.body.category) {
+      const found = await Category.findOne({ _id: req.body.category, ...getBranchFilter(req) });
+      if (!found) return res.status(400).json({ error: 'Invalid category ID' });
+    }
+
+    const updateData = { ...req.body };
+    delete updateData.branch;
+
+    const updated = await SparePart.findOneAndUpdate(
+      { _id: req.params.id, ...getBranchFilter(req) },
+      { $set: updateData },
       { new: true, runValidators: true }
     );
     if (!updated) return res.status(404).json({ error: 'Spare part not found' });
@@ -84,7 +94,7 @@ const updateSparePart = async (req, res) => {
 // Delete spare part
 const deleteSparePart = async (req, res) => {
   try {
-    const removed = await SparePart.findByIdAndDelete(req.params.id);
+    const removed = await SparePart.findOneAndDelete({ _id: req.params.id, ...getBranchFilter(req) });
     if (!removed) return res.status(404).json({ error: 'Spare part not found' });
     res.json({ message: 'Spare part deleted' });
   } catch (err) {
@@ -92,10 +102,19 @@ const deleteSparePart = async (req, res) => {
   }
 };
 
-// controllers/sparePartController.js
 const bulkInsert = async (req, res) => {
   try {
-    const inserted = await SparePart.insertMany(req.body);
+    const parts = Array.isArray(req.body) ? req.body : [];
+    const inserts = [];
+
+    for (const part of parts) {
+      const found = await Category.findOne({ _id: part.category, ...getBranchFilter(req) });
+      if (!found) return res.status(400).json({ error: `Invalid category ID for part ${part.description || part.part_no}` });
+
+      inserts.push({ ...part, branch: req.branchId });
+    }
+
+    const inserted = await SparePart.insertMany(inserts);
     res.status(201).json(inserted);
   } catch (err) {
     res.status(400).json({ error: err.message });
@@ -107,7 +126,7 @@ const getLowStockParts = async (req, res) => {
   try {
     const threshold = parseInt(req.query.threshold) || 3;
 
-    const lowStock = await SparePart.find({ qty: { $lte: threshold } })
+    const lowStock = await SparePart.find({ ...getBranchFilter(req), qty: { $lte: threshold } })
       .populate('category', 'name')
       .sort({ 'category.name': 1 });
 
@@ -128,8 +147,6 @@ const getLowStockParts = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
-
-
 
 module.exports = {
   getAllSpareParts,
