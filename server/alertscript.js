@@ -1,7 +1,7 @@
 require('dotenv').config();
 const mongoose = require('mongoose');
-const connectDB = require('./dbConfig/db');
-const { checkLowStockParts } = require('./services/alerts');
+const connectDB = require('../server/dbConfig/db');
+const { checkLowStockParts } = require('../server/services/alerts');
 
 const run = async () => {
   await connectDB();
