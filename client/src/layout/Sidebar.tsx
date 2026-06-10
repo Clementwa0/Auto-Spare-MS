@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { LucideMenu, SidebarClose, SidebarOpen, X } from "lucide-react";
+import { LucideMenu, SidebarClose, SidebarOpen, X, Building2 } from "lucide-react";
 import { links } from "@/constants";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -12,30 +12,51 @@ const Sidebar: React.FC = () => {
   const isMobile = useIsMobile();
   const [collapsed, setCollapsed] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const { user } = useAuth();
+  const { user, company, branch } = useAuth();
 
   const toggleMenu = () => setMenuOpen((prev) => !prev);
+  const filteredLinks = links.filter((link) => link.roles.includes(user?.role || ""));
 
-  const filteredLinks = links.filter(link => link.roles.includes(user?.role || ""));
+  const TenantBlock = ({ compact = false }: { compact?: boolean }) => (
+    <div
+      className={cn(
+        "flex items-center gap-2 px-3 py-2 rounded-md bg-blue-50 dark:bg-gray-800 border border-blue-100 dark:border-gray-700",
+        compact && "justify-center"
+      )}
+    >
+      <Building2 className="w-4 h-4 text-blue-600 shrink-0" />
+      {!compact && (
+        <div className="min-w-0">
+          <div className="text-xs font-semibold text-gray-900 dark:text-white truncate">
+            {company?.name || "No company"}
+          </div>
+          <div className="text-[11px] text-muted-foreground truncate">
+            {branch?.name || "No branch"}
+          </div>
+        </div>
+      )}
+    </div>
+  );
 
   return (
     <div>
-      {/* Mobile Toggle Button */}
       {isMobile && (
         <div className="fixed top-0 left-4 z-50 bg-white dark:bg-gray-900 p-2">
           <Button
             onClick={toggleMenu}
-            className="h-10 w-10 shadow-none  border-none text-gray-900 dark:text-white "
+            className="h-10 w-10 shadow-none border-none text-gray-900 dark:text-white"
             variant="ghost"
           >
-            {menuOpen ? <X /> : <LucideMenu className="w-10 h-10"/>}
+            {menuOpen ? <X /> : <LucideMenu className="w-10 h-10" />}
           </Button>
         </div>
       )}
 
-      {/* Mobile Sidebar Drawer */}
       {isMobile && menuOpen && (
         <div className="fixed inset-0 z-40 bg-white dark:bg-gray-900 bg-opacity-95 p-4 pt-16">
+          <div className="mb-4">
+            <TenantBlock />
+          </div>
           <nav>
             <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
               {filteredLinks.map(({ path, name, icon: Icon }) => (
@@ -56,28 +77,33 @@ const Sidebar: React.FC = () => {
                 </li>
               ))}
               {user?.role === "admin" && (
-                <li>
-                  <Link
-                    to="/users/create"
-                    className={cn(
-                      "flex items-center gap-3 px-3 py-2 rounded-md transition-colors",
-                      location.pathname === "/users/create"
-                        ? "bg-blue-700 text-white"
-                        : "hover:bg-blue-100 dark:hover:bg-gray-800"
-                    )}
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    <span className="w-5 h-5 flex items-center justify-center font-bold">+</span>
-                    <span>Create User</span>
-                  </Link>
-                </li>
+                <>
+                  <li>
+                    <Link
+                      to="/branch/setup"
+                      className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-blue-100 dark:hover:bg-gray-800"
+                      onClick={() => setMenuOpen(false)}
+                    >
+                      <Building2 className="w-5 h-5" /> <span>Branches</span>
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/users/create"
+                      className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-blue-100 dark:hover:bg-gray-800"
+                      onClick={() => setMenuOpen(false)}
+                    >
+                      <span className="w-5 h-5 flex items-center justify-center font-bold">+</span>
+                      <span>Create User</span>
+                    </Link>
+                  </li>
+                </>
               )}
             </ul>
           </nav>
         </div>
       )}
 
-      {/* Desktop Sidebar */}
       <div className="hidden md:block dark:bg-gray-900">
         <aside
           className={cn(
@@ -97,6 +123,10 @@ const Sidebar: React.FC = () => {
             >
               {collapsed ? <SidebarOpen /> : <SidebarClose />}
             </Button>
+          </div>
+
+          <div className="px-2 pt-3">
+            <TenantBlock compact={collapsed} />
           </div>
 
           <nav className="flex-1 px-2 py-4 flex flex-col justify-between">
@@ -121,7 +151,22 @@ const Sidebar: React.FC = () => {
             </ul>
 
             {user?.role === "admin" && (
-              <ul className="mt-4 text-sm text-gray-700 dark:text-gray-300">
+              <ul className="mt-4 text-sm text-gray-700 dark:text-gray-300 space-y-2">
+                <li>
+                  <Link
+                    to="/branch/setup"
+                    className={cn(
+                      "flex items-center gap-3 px-3 py-2 rounded-md transition-colors",
+                      location.pathname === "/branch/setup"
+                        ? "bg-blue-700 text-white"
+                        : "hover:bg-blue-100 dark:hover:bg-gray-800",
+                      collapsed && "justify-center"
+                    )}
+                  >
+                    <Building2 className="w-5 h-5" />
+                    {!collapsed && <span>Branches</span>}
+                  </Link>
+                </li>
                 <li>
                   <Link
                     to="/users/create"
