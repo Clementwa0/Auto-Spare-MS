@@ -1,6 +1,12 @@
 const mongoose = require("mongoose");
 
 const saleSchema = new mongoose.Schema({
+  branch: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Branch",
+    required: true,
+    index: true,
+  },
   date: {
     type: Date,
     default: Date.now,
@@ -13,7 +19,7 @@ const saleSchema = new mongoose.Schema({
     {
       part: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Part",
+        ref: "SparePart",
         required: true,
       },
       qty: {
@@ -31,5 +37,7 @@ const saleSchema = new mongoose.Schema({
     },
   ],
 });
+
+saleSchema.index({ branch: 1, date: -1 });
 
 module.exports = mongoose.model("Sale", saleSchema);
