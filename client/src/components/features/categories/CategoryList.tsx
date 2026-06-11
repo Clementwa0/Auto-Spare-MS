@@ -1,7 +1,4 @@
-// Import React hooks
 import { useEffect, useState } from "react";
-
-// Import UI components
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -44,7 +41,6 @@ import {
 } from "@/services/category";
 import { fetchParts } from "@/services/part";
 
-// Import types
 import type { Category, Part } from "@/types/type";
 
 export default function Categories() {
