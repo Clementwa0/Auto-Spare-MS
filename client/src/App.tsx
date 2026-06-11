@@ -36,7 +36,6 @@ const App = () => {
           >
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
-            {/* Bootstrap admin must create a branch before anything else works. */}
             <Route
               path="/branch/setup"
               element={

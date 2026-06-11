@@ -53,7 +53,7 @@ const Sidebar: React.FC = () => {
       )}
 
       {isMobile && menuOpen && (
-        <div className="fixed inset-0 z-40 bg-white dark:bg-gray-900 bg-opacity-95 p-4 pt-16">
+        <div className="fixed inset-0 z-40 w-60 bg-white dark:bg-gray-900 bg-opacity-95 p-4 pt-16">
           <div className="mb-4">
             <TenantBlock />
           </div>
@@ -108,7 +108,7 @@ const Sidebar: React.FC = () => {
         <aside
           className={cn(
             "h-screen border-r shadow-lg flex flex-col transition-all duration-300 bg-white dark:bg-gray-900",
-            collapsed ? "w-14" : "w-64"
+            collapsed ? "w-14" : "w-57"
           )}
         >
           <div className="flex items-center justify-between border px-4 md:px-6 h-16 border-b bg-white dark:bg-gray-900 dark:border-gray-800 shadow-sm">
