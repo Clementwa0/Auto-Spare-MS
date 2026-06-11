@@ -1,6 +1,28 @@
 import api from "@/lib/api";
 import type { Part } from "@/types/type";
 
+export interface LowStockPart {
+  _id: string;
+  part_no: string;
+  code?: string;
+  description: string;
+  qty: number;
+  min: number;
+  category: string;
+}
+
+export interface LowStockResponse {
+  count: number;
+  threshold: number;
+  parts: LowStockPart[];
+}
+
+export const fetchLowStockParts = async (): Promise<LowStockResponse> => {
+  const response = await api.get("/spare-parts/low-stock");
+  return response.data;
+};
+
+
 export const fetchParts = async (): Promise<Part[]> => {
   const response = await api.get("/spare-parts");
   return response.data;

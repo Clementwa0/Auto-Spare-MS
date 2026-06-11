@@ -1,28 +1,38 @@
 import api from "@/lib/api";
 
 export async function fetchDashboardStats() {
-  const [partsRes, salesRes, expensesRes] = await Promise.all([
-    api.get("/spare-parts"),
-    api.get("/sales?today=true"),
-    api.get("/expenses"),
-  ]);
+  const [partsRes, salesRes, expensesRes, lowStockRes] =
+    await Promise.all([
+      api.get("/spare-parts"),
+      api.get("/sales?today=true"),
+      api.get("/expenses"),
+      api.get("/spare-parts/low-stock"),
+    ]);
 
-  const allParts = partsRes.data;
-  const todaySales = salesRes.data;
-  const expenses = expensesRes.data;
+  const allParts = partsRes.data || [];
+  const todaySales = salesRes.data || [];
+  const expenses = expensesRes.data || [];
 
-  const totalRevenue = todaySales.reduce((sum: any, sale: { total: any }) => sum + sale.total, 0);
-  const totalExpenses = expenses.reduce((sum: any, exp: { amount: any }) => sum + exp.amount, 0);
+  const totalRevenue = todaySales.reduce(
+    (sum: number, sale: any) => sum + Number(sale.total || 0),
+    0
+  );
 
-  const lowStockParts = allParts.filter((p: any) => p.qty > 0 && p.qty < 3);
-  const outOfStockParts = allParts.filter((p: any) => p.qty === 0);
+  const totalExpenses = expenses.reduce(
+    (sum: number, exp: any) => sum + Number(exp.amount || 0),
+    0
+  );
+
+  const outOfStockParts = allParts.filter(
+    (part: any) => Number(part.qty) === 0
+  );
 
   return {
     totalParts: allParts.length,
-    lowStockCount: lowStockParts.length,
+    lowStockCount: lowStockRes.data.count || 0,
     todaySales: totalRevenue,
     totalExpenses,
     outOfStockParts,
-    lowStockParts,
+    lowStockParts: lowStockRes.data.parts || [],
   };
 }

@@ -124,7 +124,7 @@ const bulkInsert = async (req, res) => {
 // Get low stock spare parts (qty <= threshold)
 const getLowStockParts = async (req, res) => {
   try {
-    const threshold = parseInt(req.query.threshold) || 3;
+    const threshold = parseInt(req.query.threshold) || 10;
 
     const lowStock = await SparePart.find({ ...getBranchFilter(req), qty: { $lte: threshold } })
       .populate('category', 'name')

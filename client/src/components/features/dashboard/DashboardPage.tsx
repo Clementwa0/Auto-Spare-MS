@@ -114,7 +114,7 @@ export default function AdminDashboard() {
             icon={AlertTriangle}
             color="text-yellow-600"
             className={
-              stats.lowStockCount > 0
+              stats.lowStockCount > 6
                 ? "bg-yellow-50 border-l-4 border-yellow-500"
                 : ""
             }

@@ -1,14 +1,14 @@
-// React imports
 import { useEffect, useState } from "react";
-
-// UI Components
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { AlertTriangle, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
-// Types & Services
-import type { Part } from "@/types/type";
-import { fetchDashboardStats } from "@/services/dashboard";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+
 import {
   Table,
   TableBody,
@@ -18,168 +18,202 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-const LowStockReport = () => {
-  // ----------------- STATE -----------------
-  const [lowStockParts, setLowStockParts] = useState<Part[]>([]); // Store low stock parts
-  const [loading, setLoading] = useState(true); // Loading indicator
+import {
+  fetchLowStockParts,
+  type LowStockPart,
+} from "@/services/part";
 
-  // ----------------- EFFECT: Fetch low stock parts -----------------
+const LowStockPage = () => {
+  const [parts, setParts] = useState<LowStockPart[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [threshold, setThreshold] = useState(10);
+
   useEffect(() => {
-    const loadLowStockParts = async () => {
-      try {
-        // Call dashboard stats API and extract low stock items
-        const data = await fetchDashboardStats();
-        setLowStockParts(data.lowStockParts || []);
-      } catch (error) {
-        toast.error("Failed to load low stock items");
-      } finally {
-        setLoading(false);
-      }
-    };
     loadLowStockParts();
   }, []);
 
-  // ----------------- RENDER -----------------
-  return (
-    <div className="p-4 md:p-6 max-w-6xl mx-auto">
-      {loading ? (
-        // ----------------- Loading State -----------------
-        <div className="flex justify-center items-center h-64">
-          <div className="text-center">
-            <Loader2 className="w-8 h-8 animate-spin mx-auto text-amber-600" />
-            <p className="mt-2 text-gray-600">Loading low stock items...</p>
-          </div>
+  const loadLowStockParts = async () => {
+    try {
+      setLoading(true);
+
+      const data = await fetchLowStockParts();
+
+      setParts(data.parts || []);
+      setThreshold(data.threshold || 10);
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to load low stock items");
+      setParts([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-[60vh]">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin mx-auto text-amber-600" />
+          <p className="mt-2 text-muted-foreground">
+            Loading low stock items...
+          </p>
         </div>
-      ) : (
-        // ----------------- Low Stock Report Card -----------------
-        <Card className="border-l-4 border-amber-500 shadow-md">
-          {/* Card Header */}
-          <CardHeader className="bg-amber-50 pb-3">
-            <CardTitle className="flex flex-wrap items-center justify-center gap-2 text-amber-800 text-md md:text-xl">
-              <AlertTriangle className="w-5 h-5 shrink-0" />
-              Low Stock Items
-              {lowStockParts.length > 0 && (
-                <span className="ml-auto md:ml-2 text-xs md:text-sm font-medium bg-amber-200 p-1 rounded-full">
-                  {lowStockParts.length} item
-                  {lowStockParts.length !== 1 ? "s" : ""}
-                </span>
-              )}
-            </CardTitle>
-          </CardHeader>
+      </div>
+    );
+  }
 
-          {/* Card Content */}
-          <CardContent className="p-0">
-            {/* ----------------- If no low stock ----------------- */}
-            {lowStockParts.length === 0 ? (
-              <div className="text-center py-8 px-4">
-                {/* Green checkmark icon */}
-                <div className="mx-auto w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mb-3">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-6 w-6 text-green-600"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                </div>
-                <p className="text-gray-700 font-medium">
-                  All items are well stocked
-                </p>
-                <p className="text-gray-500 text-sm mt-1">
-                  No low inventory alerts
-                </p>
+  return (
+    <div className="p-4 md:p-6 max-w-7xl mx-auto">
+      <Card className="shadow-sm">
+        <CardHeader className="border-b bg-amber-50">
+          <CardTitle className="flex items-center gap-2 text-amber-800">
+            <AlertTriangle className="h-5 w-5" />
+
+            Low Stock Items
+
+            <span className="ml-2 rounded-full bg-amber-200 px-3 py-1 text-xs font-semibold">
+              {parts.length}
+            </span>
+          </CardTitle>
+
+          <p className="text-sm text-amber-700">
+            Items with stock less than or equal to {threshold}
+          </p>
+        </CardHeader>
+
+        <CardContent className="p-0">
+          {parts.length === 0 ? (
+            <div className="py-10 text-center px-4">
+              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-6 w-6 text-green-600"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
               </div>
-            ) : (
-              <>
-                {/* ----------------- Desktop Table ----------------- */}
-                <div className="hidden md:block overflow-y-auto max-h-100">
-                  <Table className="min-w-[640px] md:min-w-full">
-                    <TableHeader className="bg-amber-100/50">
-                      <TableRow>
-                        <TableHead className="font-semibold text-amber-900 py-3 pl-6">
-                          Description
-                        </TableHead>
-                        <TableHead className="font-semibold text-amber-900 py-3">
-                          Part Number
-                        </TableHead>
-                        <TableHead className="font-semibold text-amber-900 py-3 text-center">
-                          Current Stock
-                        </TableHead>
-                        <TableHead className="font-semibold text-amber-900 py-3 pr-6 text-right">
-                          Status
-                        </TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {lowStockParts.map((item) => (
-                        <TableRow
-                          key={item._id}
-                          className="border-b border-amber-100 hover:bg-amber-50 transition-colors"
-                        >
-                          <TableCell className="font-medium pl-6 py-4 text-sm">
-                            {item.description}
-                          </TableCell>
-                          <TableCell className="text-gray-600 text-sm">
-                            {item.part_no}
-                          </TableCell>
-                          <TableCell className="text-center">
-                            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-amber-100 text-amber-800">
-                              {item.qty} units
-                            </span>
-                          </TableCell>
-                          <TableCell className="pr-6 text-right">
-                            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
-                              Low Stock
-                            </span>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
 
-                {/* ----------------- Mobile Card List ----------------- */}
-                <div className="md:hidden space-y-4 p-4">
-                  {lowStockParts.map((item) => (
-                    <div
-                      key={item._id}
-                      className="border border-amber-100 rounded-lg p-3 shadow-sm bg-white"
-                    >
-                      <div className="flex justify-between items-center">
-                        <h3 className="text-sm font-semibold max-w-35 text-gray-800">
-                          {item.description}
-                        </h3>
-                        <span className="text-xs  p-1 rounded-full bg-red-100 text-red-700 font-medium">
-                          Low Stock
-                        </span>
-                      </div>
-                      <p className="text-xs text-gray-600 mt-1">
-                        Part No:{" "}
-                        <span className="font-medium">{item.part_no}</span>
-                      </p>
-                      <p className="text-sm mt-2">
-                        <span className="inline-flex px-2 py-1 rounded-full bg-amber-100 text-amber-800 font-medium">
-                          {item.qty} units
-                        </span>
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </>
-            )}
-          </CardContent>
-        </Card>
-      )}
+              <h3 className="font-medium text-gray-800">
+                No low stock items
+              </h3>
+
+              <p className="text-sm text-gray-500 mt-1">
+                All inventory levels are healthy.
+              </p>
+            </div>
+          ) : (
+            <>
+              {/* Mobile Cards */}
+             {/* Mobile Compact List */}
+<div className="block md:hidden">
+  <div className="divide-y">
+    {parts.map((part) => (
+      <div
+        key={part._id}
+        className="p-3 flex items-center justify-between"
+      >
+        <div className="min-w-0 flex-1">
+          <p className="font-medium text-sm truncate">
+            {part.part_no}
+          </p>
+
+          <p className="text-xs text-muted-foreground truncate">
+            {part.description}
+          </p>
+
+          <p className="text-xs text-gray-500">
+            {part.category}
+          </p>
+        </div>
+
+        <div className="flex flex-col items-end gap-1 ml-3">
+          <span className="rounded-full bg-red-100 px-2 py-1 text-xs font-semibold text-red-700">
+            {part.qty}
+          </span>
+
+          <span className="text-[10px] text-amber-700">
+            Low Stock
+          </span>
+        </div>
+      </div>
+    ))}
+  </div>
+</div>
+
+              {/* Desktop Table */}
+              <div className="hidden md:block overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Part Number</TableHead>
+                      <TableHead>Code</TableHead>
+                      <TableHead>Description</TableHead>
+                      <TableHead>Category</TableHead>
+                      <TableHead className="text-center">
+                        Current Qty
+                      </TableHead>
+                      <TableHead className="text-center">
+                        Threshold
+                      </TableHead>
+                      <TableHead className="text-right">
+                        Status
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
+
+                  <TableBody>
+                    {parts.map((part) => (
+                      <TableRow key={part._id}>
+                        <TableCell className="font-medium">
+                          {part.part_no}
+                        </TableCell>
+
+                        <TableCell>
+                          {part.code || "-"}
+                        </TableCell>
+
+                        <TableCell>
+                          {part.description}
+                        </TableCell>
+
+                        <TableCell>
+                          {part.category}
+                        </TableCell>
+
+                        <TableCell className="text-center">
+                          <span className="inline-flex rounded-full bg-red-100 px-3 py-1 text-sm font-medium text-red-700">
+                            {part.qty}
+                          </span>
+                        </TableCell>
+
+                        <TableCell className="text-center">
+                          {part.min}
+                        </TableCell>
+
+                        <TableCell className="text-right">
+                          <span className="inline-flex rounded-full bg-amber-100 px-3 py-1 text-sm font-medium text-amber-800">
+                            Low Stock
+                          </span>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 };
 
-export default LowStockReport;
-  
+export default LowStockPage;
