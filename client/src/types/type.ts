@@ -24,4 +24,5 @@ export interface Sale {
   partId: string;
   quantity: number;
   date: string;
+  total:number;
 }

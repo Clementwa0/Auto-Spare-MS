@@ -17,6 +17,10 @@ export default function Parts() {
   const [parts, setParts] = useState<Part[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // ✅ pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 15;
+
   useEffect(() => {
     const loadCategories = async () => {
       const data = await fetchCategories();
@@ -31,10 +35,11 @@ export default function Parts() {
       const data = await fetchPartsByCategory(selectedCategory);
       setParts(data);
       setLoading(false);
+      setCurrentPage(1); // reset page when filter changes
     };
     loadParts();
   }, [selectedCategory]);
-  
+
   if (loading) return <Loader />;
 
   const filteredParts = parts.filter((part) =>
@@ -43,6 +48,18 @@ export default function Parts() {
       .toLowerCase()
       .includes(searchTerm.toLowerCase())
   );
+
+  // ✅ pagination logic
+  const totalPages = Math.ceil(filteredParts.length / itemsPerPage);
+
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedParts = filteredParts.slice(
+    startIndex,
+    startIndex + itemsPerPage
+  );
+
+  const goPrev = () => setCurrentPage((p) => Math.max(p - 1, 1));
+  const goNext = () => setCurrentPage((p) => Math.min(p + 1, totalPages));
 
   const getStockBadge = (qty: number) => {
     if (qty === 0) return <Badge variant="destructive">Out of Stock</Badge>;
@@ -69,7 +86,7 @@ export default function Parts() {
         </Link>
       </div>
 
-      {/* Category Dropdown & Search */}
+      {/* Category + Search */}
       <div className="flex flex-wrap gap-4 items-center">
         <select
           value={selectedCategory}
@@ -103,182 +120,132 @@ export default function Parts() {
             All Parts ({filteredParts.length})
           </CardTitle>
         </CardHeader>
+
         <CardContent>
-          {loading ? (
-            <div className="p-4">Loading parts...</div>
-          ) : (
-            <div className="overflow-x-auto hidden sm:block">
-              <table className="w-full">
-                <thead className="bg-muted/50">
-                  <tr className="border-b border-border dark:bg-gray-900">
-                    <th className="px-4 py-3 text-sm font-medium text-left">
-                      Part Info
-                    </th>
-                    <th className="px-4 py-3 text-sm font-medium text-left">
-                      Category
-                    </th>
-                    <th className="px-4 py-3 text-sm font-medium text-left">
-                      Stock
-                    </th>
-                    <th className="px-4 py-3 text-sm font-medium text-left">
-                      Price
-                    </th>
-                    <th className="px-4 py-3 text-sm font-medium text-left">
-                      Compatible Models
-                    </th>
-                    <th className="px-4 py-3 text-sm font-medium text-right">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border">
-                  {filteredParts.map((part) => (
-                    <tr
-                      key={part._id}
-                      className="group hover:bg-blue-50 dark:hover:bg-gray-800 transition-colors"
-                    >
-                      <td className="px-4 py-3 text-sm">
-                        <div>
-                          <p className="font-medium">{part.description}</p>
-                          <p className="text-xs text-muted-foreground">
-                            {part.brand} • {part.part_no} • {part.code}
-                          </p>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3 text-sm">
-                        <Badge variant="outline">
-                          {typeof part.category === "string"
-                            ? "N/A"
-                            : part.category?.name || "N/A"}
-                        </Badge>
-                      </td>
-                      <td className="px-4 py-3 text-sm">
-                        <div className="flex flex-col gap-1">
-                          {getStockBadge(part.qty)}
-                          <p className="text-xs text-muted-foreground">
-                            {part.qty} {part.unit}
-                          </p>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3 text-sm">
-                        <div>
-                          <p className="font-medium">
-                            KES {part.selling_price}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            Cost: KES {part.buying_price}
-                          </p>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3 text-sm">
-                        <div className="space-y-1">
-                          {part.compatible_models
-                            .slice(0, 2)
-                            .map((model, i) => (
-                              <Badge
-                                key={i}
-                                variant="secondary"
-                                className="text-xs"
-                              >
-                                {model}
-                              </Badge>
-                            ))}
-                          {part.compatible_models.length > 2 && (
-                            <p className="text-xs text-muted-foreground">
-                              + {part.compatible_models.length - 2} more
-                            </p>
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-4 py-3 text-right">
-                        <div className="flex justify-end space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <Link to={`/parts/${part._id}/edit`}>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="text-muted-foreground hover:text-primary"
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                          </Link>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="text-destructive hover:bg-destructive/10"
-                          >
-                            <Trash2 className="h-4 w-4" />
+          {/* TABLE */}
+          <div className="overflow-x-auto hidden sm:block">
+            <table className="w-full">
+              <thead className="bg-muted/50">
+                <tr className="border-b border-border">
+                  <th className="px-4 py-3 text-left">Part Info</th>
+                  <th className="px-4 py-3 text-left">Category</th>
+                  <th className="px-4 py-3 text-left">Stock</th>
+                  <th className="px-4 py-3 text-left">Price</th>
+                  <th className="px-4 py-3 text-left">Models</th>
+                  <th className="px-4 py-3 text-right">Actions</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {paginatedParts.map((part) => (
+                  <tr key={part._id} className="border-b hover:bg-gray-50">
+                    <td className="px-4 py-3 text-sm">
+                      <p className="font-medium">{part.description}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {part.brand} • {part.part_no}
+                      </p>
+                    </td>
+
+                    <td className="px-4 py-3 text-sm">
+                      <Badge variant="outline">
+                        {typeof part.category === "string"
+                          ? "N/A"
+                          : part.category?.name || "N/A"}
+                      </Badge>
+                    </td>
+
+                    <td className="px-4 py-3 text-sm">
+                      {getStockBadge(part.qty)}
+                      <p className="text-xs text-muted-foreground">
+                        {part.qty} {part.unit}
+                      </p>
+                    </td>
+
+                    <td className="px-4 py-3 text-sm">
+                      KES {part.selling_price}
+                    </td>
+
+                    <td className="px-4 py-3 text-sm">
+                      {part.compatible_models.slice(0, 2).join(", ")}
+                    </td>
+
+                    <td className="px-4 py-3 text-right">
+                      <div className="flex justify-end gap-2">
+                        <Link to={`/parts/${part._id}/edit`}>
+                          <Button size="icon" variant="ghost">
+                            <Edit className="h-4 w-4" />
                           </Button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-          {/* Mobile List View */}
-          <div className="sm:hidden space-y-4">
-            {filteredParts.map((part) => (
-              <div
-                key={part._id}
-                className="border border-border rounded-lg p-4 shadow-sm bg-background"
-              >
-                <div className="flex justify-between items-center">
-                  <h2 className="text-base font-semibold">
-                    {part.description}
-                  </h2>
-                  {getStockBadge(part.qty)}
-                </div>
-                <p className="text-sm text-muted-foreground mt-1">
-                  {part.brand} • {part.part_no} • {part.code}
-                </p>
+                        </Link>
 
-                <div className="mt-2 text-sm">
-                  <p>
-                    <span className="font-medium">Category: </span>
-                    {typeof part.category === "string"
-                      ? "N/A"
-                      : part.category?.name || "N/A"}
-                  </p>
-                  <p>
-                    <span className="font-medium">Price: </span>
-                    KES {part.selling_price}{" "}
-                    <span className="text-xs text-muted-foreground ml-1">
-                      (Cost: KES {part.buying_price})
-                    </span>
-                  </p>
-                  <p>
-                    <span className="font-medium">Qty: </span>
-                    {part.qty} {part.unit}
-                  </p>
-                  <p>
-                    <span className="font-medium">Models: </span>
-                    {part.compatible_models.slice(0, 2).join(", ")}
-                    {part.compatible_models.length > 2 && (
-                      <span className="text-muted-foreground">
-                        {" "}
-                        +{part.compatible_models.length - 2} more
-                      </span>
-                    )}
+                        {/* ✅ KEPT YOUR TRASH BUTTON */}
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="text-destructive"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* MOBILE */}
+          <div className="sm:hidden divide-y text-xs">
+            {paginatedParts.map((part) => (
+              <div key={part._id} className="py-2 flex justify-between">
+                <div className="min-w-0">
+                  <p className="font-medium truncate">{part.description}</p>
+                  <p className="text-[10px] text-muted-foreground">
+                    {part.part_no}
                   </p>
                 </div>
 
-                <div className="mt-3 flex gap-2 justify-end">
+                <div className="flex gap-1">
                   <Link to={`/parts/${part._id}/edit`}>
-                    <Button variant="outline" size="sm">
-                      <Edit className="h-4 w-4" />
+                    <Button size="icon" variant="ghost" className="h-6 w-6">
+                      <Edit className="h-3 w-3" />
                     </Button>
                   </Link>
+
                   <Button
-                    variant="outline"
-                    size="sm"
-                    className="text-destructive"
+                    size="icon"
+                    variant="ghost"
+                    className="h-6 w-6 text-destructive"
                   >
-                    <Trash2 className="h-4 w-4" />
+                    <Trash2 className="h-3 w-3" />
                   </Button>
                 </div>
               </div>
             ))}
+          </div>
+
+          {/* PAGINATION */}
+          <div className="flex items-center justify-between mt-4">
+            <p className="text-sm text-muted-foreground">
+              Page {currentPage} of {totalPages || 1}
+            </p>
+
+            <div className="flex gap-2">
+              <Button
+                onClick={goPrev}
+                disabled={currentPage === 1}
+                size="sm"
+              >
+                Prev
+              </Button>
+
+              <Button
+                onClick={goNext}
+                disabled={currentPage === totalPages || totalPages === 0}
+                size="sm"
+              >
+                Next
+              </Button>
+            </div>
           </div>
         </CardContent>
       </Card>
