@@ -90,7 +90,7 @@ export function CartPanel({
         <div className="border-t bg-background p-4">
           <div className="space-y-1.5 text-sm">
             <CartSummaryRow label={`Subtotal (${totalItems})`} value={formatKES(subtotal)} />
-            <CartSummaryRow label="VAT (16%)" value={formatKES(vat)} muted />
+            <CartSummaryRow label="VAT (0%)" value={formatKES(vat)} muted />
           </div>
           <Separator className="my-3" />
           <div className="flex items-baseline justify-between">

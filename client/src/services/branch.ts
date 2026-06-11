@@ -48,3 +48,4 @@ export const assignUserToBranch = async (branchId: string, userId: string) => {
   const res = await api.post(`/branches/${branchId}/assign-user`, { userId });
   return res.data.user;
 };
+

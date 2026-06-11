@@ -3,13 +3,16 @@ import { toast } from "sonner";
 import { fetchParts, updatePartQty } from "@/services/part";
 import { createSale } from "@/services/sale";
 import { fetchCategories } from "@/services/category";
+import { getBranch, type Branch } from "@/services/branch";
 import type { Part, Category } from "@/types/type";
 import { useAuth } from "@/context/AuthContext";
 import { printReceipt, downloadReceipt } from "@/lib/receipts";
 import { ALL_PARTS, type CartItem } from "./types";
 
+
 export function usePOS() {
   const { user } = useAuth();
+  const [branch, setBranch] = useState<Branch | null>(null);
   const [parts, setParts] = useState<Part[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [cart, setCart] = useState<CartItem[]>([]);
@@ -36,6 +39,25 @@ export function usePOS() {
       }
     })();
   }, []);
+
+  useEffect(() => {
+    const loadBranch = async () => {
+      try {
+        const branchId =
+          (user as any)?.branch ||
+          (user as any)?.branchId;
+  
+        if (!branchId) return;
+  
+        const data = await getBranch(branchId);
+        setBranch(data);
+      } catch (err) {
+        console.error("Failed to load branch", err);
+      }
+    };
+  
+    loadBranch();
+  }, [user]);
 
   const visibleParts = useMemo(() => {
     const q = searchTerm.trim().toLowerCase();
@@ -109,15 +131,21 @@ export function usePOS() {
       toast.warning("Add items to cart first");
       return;
     }
+  
     setSaleProcessing(true);
+  
     try {
-      const bad = cart.find((i) => i.quantity > i.part.qty);
-      if (bad)
+      const bad = cart.find(
+        (i) => i.quantity > i.part.qty
+      );
+  
+      if (bad) {
         throw new Error(
-          `Insufficient stock for ${bad.part.description}. Available: ${bad.part.qty}`,
+          `Insufficient stock for ${bad.part.description}. Available: ${bad.part.qty}`
         );
-
-      await createSale({
+      }
+  
+      const sale = await createSale({
         items: cart.map((i) => ({
           part: i.part._id,
           qty: i.quantity,
@@ -127,14 +155,20 @@ export function usePOS() {
         total,
         cashier: user?._id,
       });
-
+  
       await Promise.all(
         cart.map((i) =>
-          updatePartQty(i.part._id, { qty: i.part.qty - i.quantity }),
-        ),
+          updatePartQty(i.part._id, {
+            qty: i.part.qty - i.quantity,
+          })
+        )
       );
-
-      const saleId = `S-${Date.now().toString().slice(-8)}`;
+  
+      const saleId =
+        sale?.receiptNumber ||
+        sale?._id ||
+        `S-${Date.now().toString().slice(-8)}`;
+  
       const receiptData = {
         items: cart,
         subtotal,
@@ -144,10 +178,20 @@ export function usePOS() {
         terminal: "POS-001",
         saleId,
         date: new Date(),
+  
+        branch: branch
+          ? {
+              _id: branch._id,
+              name: branch.name,
+              address: branch.address,
+              location: branch.location,
+              phone: branch.phone,
+            }
+          : undefined,
       };
-
+  
       printReceipt(receiptData);
-
+  
       toast.success("Sale completed", {
         description: `Receipt ${saleId} sent to printer.`,
         action: {
@@ -155,13 +199,16 @@ export function usePOS() {
           onClick: () => downloadReceipt(receiptData),
         },
       });
-
+  
       setCart([]);
       setShowCart(false);
+  
       const updated = await fetchParts();
       setParts(updated);
     } catch (e: any) {
-      toast.error(e.message || "Sale failed. Please try again.");
+      toast.error(
+        e?.message || "Sale failed. Please try again."
+      );
       console.error(e);
     } finally {
       setSaleProcessing(false);
@@ -172,6 +219,7 @@ export function usePOS() {
 
   return {
     user,
+    branch,
     parts,
     visibleParts,
     cart,
