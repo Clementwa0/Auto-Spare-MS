@@ -126,25 +126,30 @@ const getLowStockParts = async (req, res) => {
   try {
     const threshold = parseInt(req.query.threshold) || 10;
 
-    const lowStock = await SparePart.find({ ...getBranchFilter(req), qty: { $lte: threshold } })
-      .populate('category', 'name')
-      .sort({ 'category.name': 1 });
+    const lowStock = await SparePart.find({
+      ...getBranchFilter(req),
+      qty: { $lte: threshold },
+    })
+      .populate("category", "name")
+      .sort({ description: 1 });
 
     res.json({
       count: lowStock.length,
       threshold,
-      parts: lowStock.map(part => ({
+      parts: lowStock.map((part) => ({
         _id: part._id,
         part_no: part.part_no,
         code: part.code,
         description: part.description,
         qty: part.qty,
         min: threshold,
-        category: part.category?.name || 'Uncategorized',
-      }))
+        category: part.category?.name || "Uncategorized",
+      })),
     });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({
+      error: err.message,
+    });
   }
 };
 
