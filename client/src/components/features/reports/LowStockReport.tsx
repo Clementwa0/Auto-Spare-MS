@@ -21,7 +21,7 @@ import {
 import {
   fetchLowStockParts,
   type LowStockPart,
-} from "@/services/part";
+} from "@/services/spareParts";
 
 const LowStockPage = () => {
   const [parts, setParts] = useState<LowStockPart[]>([]);
@@ -83,7 +83,7 @@ const LowStockPage = () => {
 
         <CardContent className="p-0">
           {parts.length === 0 ? (
-            <div className="py-10 text-center px-4">
+            <div className="py-10 text-center">
               <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -110,105 +110,65 @@ const LowStockPage = () => {
               </p>
             </div>
           ) : (
-            <>
-              {/* Mobile Cards */}
-             {/* Mobile Compact List */}
-<div className="block md:hidden">
-  <div className="divide-y">
-    {parts.map((part) => (
-      <div
-        key={part._id}
-        className="p-3 flex items-center justify-between"
-      >
-        <div className="min-w-0 flex-1">
-          <p className="font-medium text-sm truncate">
-            {part.part_no}
-          </p>
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Part Number</TableHead>
+                    <TableHead>Code</TableHead>
+                    <TableHead>Description</TableHead>
+                    <TableHead>Category</TableHead>
+                    <TableHead className="text-center">
+                      Current Qty
+                    </TableHead>
+                    <TableHead className="text-center">
+                      Threshold
+                    </TableHead>
+                    <TableHead className="text-right">
+                      Status
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
 
-          <p className="text-xs text-muted-foreground truncate">
-            {part.description}
-          </p>
+                <TableBody>
+                  {parts.map((part) => (
+                    <TableRow key={part._id}>
+                      <TableCell className="font-medium">
+                        {part.part_no}
+                      </TableCell>
 
-          <p className="text-xs text-gray-500">
-            {part.category}
-          </p>
-        </div>
+                      <TableCell>
+                        {part.code || "-"}
+                      </TableCell>
 
-        <div className="flex flex-col items-end gap-1 ml-3">
-          <span className="rounded-full bg-red-100 px-2 py-1 text-xs font-semibold text-red-700">
-            {part.qty}
-          </span>
+                      <TableCell>
+                        {part.description}
+                      </TableCell>
 
-          <span className="text-[10px] text-amber-700">
-            Low Stock
-          </span>
-        </div>
-      </div>
-    ))}
-  </div>
-</div>
+                      <TableCell>
+                        {part.category}
+                      </TableCell>
 
-              {/* Desktop Table */}
-              <div className="hidden md:block overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Part Number</TableHead>
-                      <TableHead>Code</TableHead>
-                      <TableHead>Description</TableHead>
-                      <TableHead>Category</TableHead>
-                      <TableHead className="text-center">
-                        Current Qty
-                      </TableHead>
-                      <TableHead className="text-center">
-                        Threshold
-                      </TableHead>
-                      <TableHead className="text-right">
-                        Status
-                      </TableHead>
+                      <TableCell className="text-center">
+                        <span className="inline-flex rounded-full bg-red-100 px-3 py-1 text-sm font-medium text-red-700">
+                          {part.qty}
+                        </span>
+                      </TableCell>
+
+                      <TableCell className="text-center">
+                        {part.min}
+                      </TableCell>
+
+                      <TableCell className="text-right">
+                        <span className="inline-flex rounded-full bg-amber-100 px-3 py-1 text-sm font-medium text-amber-800">
+                          Low Stock
+                        </span>
+                      </TableCell>
                     </TableRow>
-                  </TableHeader>
-
-                  <TableBody>
-                    {parts.map((part) => (
-                      <TableRow key={part._id}>
-                        <TableCell className="font-medium">
-                          {part.part_no}
-                        </TableCell>
-
-                        <TableCell>
-                          {part.code || "-"}
-                        </TableCell>
-
-                        <TableCell>
-                          {part.description}
-                        </TableCell>
-
-                        <TableCell>
-                          {part.category}
-                        </TableCell>
-
-                        <TableCell className="text-center">
-                          <span className="inline-flex rounded-full bg-red-100 px-3 py-1 text-sm font-medium text-red-700">
-                            {part.qty}
-                          </span>
-                        </TableCell>
-
-                        <TableCell className="text-center">
-                          {part.min}
-                        </TableCell>
-
-                        <TableCell className="text-right">
-                          <span className="inline-flex rounded-full bg-amber-100 px-3 py-1 text-sm font-medium text-amber-800">
-                            Low Stock
-                          </span>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            </>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           )}
         </CardContent>
       </Card>

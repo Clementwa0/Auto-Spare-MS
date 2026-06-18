@@ -23,8 +23,15 @@ const Login: React.FC = () => {
     setLoading(true);
 
     try {
-      await login(email, password);
-      navigate("/dashboard");
+      const data = await login(email, password);
+      // Multi-branch users go through the picker; single-branch goes straight to dashboard.
+      if (data.needsBranchSelection || (data.branches?.length > 1 && !data.activeBranchId)) {
+        navigate("/select-branch");
+      } else if (!data.branches || data.branches.length === 0) {
+        navigate("/branch/setup");
+      } else {
+        navigate("/dashboard");
+      }
     } catch (err) {
       setError("Invalid email or password. Please try again.");
       setPassword("");

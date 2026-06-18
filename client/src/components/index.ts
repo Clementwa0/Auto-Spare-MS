@@ -9,11 +9,16 @@ export { default as SupplierList } from "./features/suppliers/SupplierList";
 export { default as InventoryReport } from "./features/reports/InventoryReport";
 export { default as LowStockReport } from "./features/reports/LowStockReport";
 export { default as NotFound } from "./NotFound";
-export { default as CategoryList } from "./features/categories/CategoryList"
-export {default as CreateUser} from "./pages/CreateUser"
-export {default as BranchSetup} from "./pages/BranchSetup"
-export {default as AdminRoute} from "./AdminRoute"
-export {default as ProtectedRoute } from "./ProtectedRoute"
-export {default as Login } from "./Login"
-export {default as Register } from "./Register"
-export {default as POSPage} from "@/components/features/pos/POSPage"
+export { default as CategoryList } from "./features/categories/CategoryList";
+export { default as CreateUser } from "./pages/CreateUser";
+export { default as BranchSetup } from "./pages/BranchSetup";
+export { default as BranchSelector } from "./pages/BranchSelector";
+export { default as CompanySettings } from "./pages/CompanySettings";
+export { default as UsersPage } from "./pages/UsersPage";
+export { default as AdminRoute } from "./AdminRoute";
+export { default as ProtectedRoute } from "./ProtectedRoute";
+export { default as RoleGuard } from "./RoleGuard";
+export { default as BranchSwitcher } from "./BranchSwitcher";
+export { default as Login } from "./Login";
+export { default as Register } from "./Register";
+export { default as POSPage } from "@/components/features/pos/POSPage";

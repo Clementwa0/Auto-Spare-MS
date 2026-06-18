@@ -1,20 +1,26 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
-import { createUser, type NewUser } from "@/services/user";
+import { createUser } from "@/services/user";
 import { UserPlus, Eye, EyeOff, XCircle } from "lucide-react";
 
 const CreateUser: React.FC = () => {
-  const { user } = useAuth();
+  const { user, branches } = useAuth();
   const navigate = useNavigate();
 
-  const [form, setForm] = useState<NewUser>({
-  name: "",
-  email: "",
-  password: "",
-  role: "sales",
-});
-
+  const [form, setForm] = useState<{
+    name: string;
+    email: string;
+    password: string;
+    role: string;
+    branchIds: string[];
+  }>({
+    name: "",
+    email: "",
+    password: "",
+    role: "cashier",
+    branchIds: [],
+  });
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -22,7 +28,8 @@ const CreateUser: React.FC = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
 
-  if (user?.role !== "admin") {
+  const isAdmin = user?.role === "admin" || user?.role === "super-admin";
+  if (!isAdmin) {
     return (
       <div className="flex items-center justify-center min-h-screen p-4">
         <div className="max-w-md w-full bg-white p-8 rounded-xl shadow-lg text-center">
@@ -42,26 +49,10 @@ const CreateUser: React.FC = () => {
     );
   }
 
-const handleChange = (
-  e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-) => {
-  const { name, value } = e.target;
-
-  if (name === "role") {
-    setForm((prev) => ({
-      ...prev,
-      role: value as NewUser["role"],
-    }));
-  } else if (name === "name") {
-    setForm((prev) => ({ ...prev, name: value }));
-  } else if (name === "email") {
-    setForm((prev) => ({ ...prev, email: value }));
-  } else if (name === "password") {
-    setForm((prev) => ({ ...prev, password: value }));
-  }
-
-  setError("");
-};
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+    setError("");
+  };
 
   const validateForm = () => {
     if (!form.name.trim()) {
@@ -96,9 +87,9 @@ const handleChange = (
 
     setLoading(true);
     try {
-      await createUser(form);
+      await createUser(form as any);
       setSuccessMessage("User created successfully!");
-      setForm({ name: "", email: "", password: "", role: "sales" });
+      setForm({ name: "", email: "", password: "", role: "cashier", branchIds: [] });
       setConfirmPassword("");
       
       // Clear success message after 3 seconds
@@ -222,9 +213,41 @@ const handleChange = (
                 onChange={handleChange}
                 className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
               >
+                <option value="cashier">Cashier</option>
+                <option value="storekeeper">Storekeeper</option>
                 <option value="sales">Sales</option>
+                <option value="branch-manager">Branch Manager</option>
                 <option value="admin">Admin</option>
               </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Assign to Branches
+              </label>
+              <div className="border border-gray-300 rounded-lg p-3 max-h-40 overflow-y-auto space-y-2">
+                {branches.length === 0 && (
+                  <div className="text-sm text-gray-500">No branches available — create one first.</div>
+                )}
+                {branches.map((b) => (
+                  <label key={b._id} className="flex items-center gap-2 text-sm">
+                    <input
+                      type="checkbox"
+                      checked={form.branchIds.includes(b._id)}
+                      onChange={(e) => {
+                        const next = e.target.checked
+                          ? [...form.branchIds, b._id]
+                          : form.branchIds.filter((x) => x !== b._id);
+                        setForm({ ...form, branchIds: next });
+                      }}
+                    />
+                    <span>{b.name}{b.isMainBranch ? " (main)" : ""}</span>
+                  </label>
+                ))}
+              </div>
+              <div className="text-xs text-gray-500 mt-1">
+                Leave empty to default to your current branch.
+              </div>
             </div>
 
             <div>

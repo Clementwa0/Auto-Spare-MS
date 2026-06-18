@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
 import { fetchTodaySales } from "@/services/sale";
 import type { Part } from "@/types/type";
+
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+
 import {
   Table,
   TableBody,
@@ -15,6 +17,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+
 import { Skeleton } from "@/components/ui/skeleton";
 import { List } from "lucide-react";
 
@@ -40,8 +43,8 @@ export default function AdminDashboard() {
         setLoading(true);
         const data = await fetchTodaySales();
         setSales(data);
-      } catch {
-        console.error("Failed to fetch sales");
+      } catch (error) {
+        console.error("Failed to fetch sales", error);
       } finally {
         setLoading(false);
       }
@@ -50,41 +53,46 @@ export default function AdminDashboard() {
     loadSales();
   }, []);
 
-  // const transactionCount = sales.length;
+  const soldItems = sales
+    .flatMap((sale) =>
+      sale.items.map((item) => ({
+        id: `${sale._id}-${item.part._id}`,
+        description: item.part.description,
+        partNo: item.part.part_no,
+        qty: item.qty,
+        price: item.selling_price,
+        date: new Date(sale.date).toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+      }))
+    )
+    .slice(0, 10);
 
   return (
     <div className="p-1 md:p-2 space-y-6">
-      {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-        <Card className="shadow-sm">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Transactions</CardTitle>
-            <CreditCard className="w-5 h-5 text-primary" />
-          </CardHeader>
-          <CardContent>
-            {loading ? (
-              <Skeleton className="h-8 w-3/4" />
-            ) : (
-              <h2 className="text-2xl md:text-3xl font-bold">
-                {transactionCount}
-              </h2>
-            )}
-          </CardContent>
-        </Card>
-      </div> */}
-
       <Card className="shadow-sm">
         <CardHeader>
-          <div className="flex items-center">
-            <List className="w-5 h-5 mr-2 text-primary" />
-            <CardTitle>Recent Sold Items</CardTitle>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <List className="w-5 h-5 mr-2 text-primary" />
+              <CardTitle>Recent Sold Items</CardTitle>
+            </div>
+
+            {!loading && (
+              <span className="text-sm text-muted-foreground">
+                {soldItems.length} Items
+              </span>
+            )}
           </div>
         </CardHeader>
+
         <CardContent>
-          <div className="rounded-md border">
+          <div className="rounded-md border overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[40%]">Part</TableHead>
+                  <TableHead>Description</TableHead>
                   <TableHead className="text-center">Qty</TableHead>
                   <TableHead className="text-right">Price</TableHead>
                   <TableHead className="hidden sm:table-cell text-right">
@@ -92,59 +100,58 @@ export default function AdminDashboard() {
                   </TableHead>
                 </TableRow>
               </TableHeader>
+
               <TableBody>
                 {loading ? (
-                  <>
-                    {[...Array(3)].map((_, i) => (
-                      <TableRow key={i}>
-                        <TableCell>
-                          <Skeleton className="h-4 w-full" />
-                        </TableCell>
-                        <TableCell>
-                          <Skeleton className="h-4 w-8 mx-auto" />
-                        </TableCell>
-                        <TableCell>
-                          <Skeleton className="h-4 w-16 ml-auto" />
-                        </TableCell>
-                        <TableCell className="hidden sm:table-cell">
-                          <Skeleton className="h-4 w-20 ml-auto" />
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </>
-                ) : sales.length > 0 ? (
-                  sales
-                    .flatMap((sale) =>
-                      sale.items.map((item) => ({
-                        id: `${sale._id}-${item.part._id}`,
-                        part: item.part.description,
-                        qty: item.qty,
-                        price: item.selling_price,
-                        date: new Date(sale.date).toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        }),
-                      }))
-                    )
-                    .slice(0, 5)
-                    .map((item) => (
-                      <TableRow key={item.id}>
-                        <TableCell className="font-medium truncate max-w-[150px]">
-                          {item.part}
-                        </TableCell>
-                        <TableCell className="text-center">{item.qty}</TableCell>
-                        <TableCell className="text-right">
-                          KES {item.price.toLocaleString()}
-                        </TableCell>
-                        <TableCell className="hidden sm:table-cell text-right">
-                          {item.date}
-                        </TableCell>
-                      </TableRow>
-                    ))
+                  [...Array(5)].map((_, i) => (
+                    <TableRow key={i}>
+                      <TableCell>
+                        <Skeleton className="h-4 w-full" />
+                      </TableCell>
+
+                      <TableCell>
+                        <Skeleton className="h-4 w-20" />
+                      </TableCell>
+
+                      <TableCell>
+                        <Skeleton className="h-4 w-8 mx-auto" />
+                      </TableCell>
+
+                      <TableCell>
+                        <Skeleton className="h-4 w-16 ml-auto" />
+                      </TableCell>
+
+                      <TableCell className="hidden sm:table-cell">
+                        <Skeleton className="h-4 w-20 ml-auto" />
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : soldItems.length > 0 ? (
+                  soldItems.map((item) => (
+                    <TableRow key={item.id}>
+                      <TableCell className="font-medium max-w-[220px] truncate">
+                        {item.description}
+                      </TableCell>
+
+                      <TableCell className="text-center">
+                        <span className="inline-flex items-center rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-700">
+                          {item.qty}
+                        </span>
+                      </TableCell>
+
+                      <TableCell className="text-right font-medium">
+                        KES {item.price.toLocaleString()}
+                      </TableCell>
+
+                      <TableCell className="hidden sm:table-cell text-right text-muted-foreground">
+                        {item.date}
+                      </TableCell>
+                    </TableRow>
+                  ))
                 ) : (
                   <TableRow>
                     <TableCell
-                      colSpan={4}
+                      colSpan={5}
                       className="text-center py-8 text-muted-foreground"
                     >
                       No sales recorded today
@@ -153,6 +160,41 @@ export default function AdminDashboard() {
                 )}
               </TableBody>
             </Table>
+          </div>
+
+          {/* Mobile View */}
+          <div className="sm:hidden mt-4 space-y-2">
+            {!loading &&
+              soldItems.slice(0, 5).map((item) => (
+                <div
+                  key={item.id}
+                  className="border rounded-lg p-3 flex justify-between items-center"
+                >
+                  <div className="min-w-0">
+                    <p className="font-medium text-sm truncate">
+                      {item.description}
+                    </p>
+
+                    <p className="text-xs text-muted-foreground">
+                      {item.partNo}
+                    </p>
+
+                    <p className="text-xs text-muted-foreground">
+                      {item.date}
+                    </p>
+                  </div>
+
+                  <div className="text-right">
+                    <p className="font-semibold text-sm">
+                      KES {item.price.toLocaleString()}
+                    </p>
+
+                    <span className="text-xs text-blue-600">
+                      Qty: {item.qty}
+                    </span>
+                  </div>
+                </div>
+              ))}
           </div>
         </CardContent>
       </Card>

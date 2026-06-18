@@ -1,11 +1,12 @@
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { ShoppingCart } from "lucide-react";
-import { CartPanel } from "./components/CartPanel";
-import { POSFooter } from "./components/POSFooter";
-import { POSHeader } from "./components/POSHeader";
-import { ProductGrid } from "./components/ProductGrid";
-import { usePOS } from "./components/usepos";
+import { usePOS } from "./features/usePOS";
+import { CartPanel } from "./features/CartPanel";
+import { POSFooter } from "./features/POSFooter";
+import { POSHeader } from "./features/POSHeader";
+import { ProductGrid } from "./features/ProductGrid";
+
 
 export default function POSPage() {
   const pos = usePOS();
@@ -26,7 +27,7 @@ export default function POSPage() {
           />
 
           <ScrollArea className="flex-1">
-            <div className="px-4 py-4 gap-2 lg:px-6">
+            <div className="px-4 py-5 lg:px-6">
               <ProductGrid
                 loading={pos.loading}
                 parts={pos.visibleParts}
@@ -56,7 +57,7 @@ export default function POSPage() {
 
       <Sheet open={pos.showCart} onOpenChange={pos.setShowCart}>
         <SheetContent side="right" className="w-full sm:max-w-md p-0 flex flex-col">
-          <SheetHeader className="border-b px-2 py-3">
+          <SheetHeader className="border-b px-4 py-3">
             <SheetTitle className="flex items-center gap-2">
               <ShoppingCart className="h-4 w-4" /> Cart ({pos.totalItems})
             </SheetTitle>

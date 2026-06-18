@@ -3,10 +3,13 @@ import { fetchDashboardStats } from "@/services/dashboard";
 import {
   Card,
   CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import { DollarSign, Package, AlertTriangle} from "lucide-react";
+} from "@/components/ui/card";
+import {
+  DollarSign,
+  Package,
+  AlertTriangle,
+  TrendingUp,
+} from "lucide-react";
 import { toast } from "sonner";
 import type { Part } from "@/types/type";
 import { Link } from "react-router-dom";
@@ -27,30 +30,35 @@ const StatCard = ({
   title,
   value,
   icon: Icon,
-  color = "text-primary",
-  className = "",
+  color,
+  bg,
 }: {
   title: string;
   value: string | number;
   icon: any;
-  color?: string;
-  className?: string;
+  color: string;
+  bg: string;
 }) => (
-  <Card
-    className={`flex-1 min-w-[200px] shadow-md transition-all duration-300 hover:shadow-lg ${className}`}
-  >
-    <CardHeader className="flex items-center justify-between">
-      <CardTitle className="text-base font-medium text-gray-600">
-        {title}
-      </CardTitle>
-      <Icon className={`w-6 h-6 ${color}`} />
-    </CardHeader>
-    <CardContent>
-      <p className="text-2xl md:text-3xl font-bold text-gray-800">{value}</p>
+  <Card className="overflow-hidden border shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer">
+    <CardContent className="p-5">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-md text-muted-foreground">{title}</p>
+
+          <h3 className="mt-2 text-2xl md:text-xl font-bold tracking-tight">
+            {value}
+          </h3>
+        </div>
+
+        <div
+          className={`h-12 w-12 rounded-xl flex items-center justify-center ${bg}`}
+        >
+          <Icon className={`h-6 w-6 ${color}`} />
+        </div>
+      </div>
     </CardContent>
   </Card>
 );
-
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState<DashboardStats>({
@@ -67,6 +75,7 @@ export default function AdminDashboard() {
   useEffect(() => {
     const loadStats = async () => {
       setLoading(true);
+
       try {
         const data = await fetchDashboardStats();
         setStats(data);
@@ -76,77 +85,126 @@ export default function AdminDashboard() {
         setLoading(false);
       }
     };
+
     loadStats();
   }, []);
 
-  if (loading)
-  return (
-    <div className="flex flex-col items-center justify-center py-20">
-      <Loader />
-      <p className="mt-4 text-gray-600 text-lg font-medium">
-        Loading dashboard items...
-      </p>
-    </div>
-  );
-
-  return (
-    <div className="space-y-6 p-4 md:p-6">
-      <div className="mb-4">
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-800">
-          {`Welcome back, Admin!`}
-        </h1>
-        <p className="text-gray-600">Overview of sales and inventory</p>
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center py-24">
+        <Loader />
+        <p className="mt-4 text-muted-foreground">
+          Loading dashboard...
+        </p>
       </div>
+    );
+  }
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+  return (
+    <div className="space-y-6 p-3 md:p-6">
+      {/* Stats */}
+      <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
         <Link to="/parts">
-          <StatCard title="Total Parts" value={stats.totalParts} icon={Package} />
-        </Link>
-        <Link
-          to="/reports/low-stock"
-          className="block transition-transform hover:scale-[1.02]"
-          aria-label="View Low Stock Items"
-        >
           <StatCard
-            title="Low Stock Items"
+            title="Total Parts"
+            value={stats.totalParts}
+            icon={Package}
+            color="text-blue-600"
+            bg="bg-blue-100"
+          />
+        </Link>
+
+        <Link to="/reports/low-stock">
+          <StatCard
+            title="Low Stock"
             value={stats.lowStockCount}
             icon={AlertTriangle}
             color="text-yellow-600"
-            className={
-              stats.lowStockCount > 6
-                ? "bg-yellow-50 border-l-4 border-yellow-500"
-                : ""
-            }
+            bg="bg-yellow-100"
           />
         </Link>
 
         <StatCard
           title="Today's Sales"
           value={`KES ${stats.todaySales.toLocaleString()}`}
-          icon={DollarSign}
+          icon={TrendingUp}
           color="text-green-600"
+          bg="bg-green-100"
         />
+
         <StatCard
-          title="Total Expenses"
+          title="Expenses"
           value={`KES ${stats.totalExpenses.toLocaleString()}`}
           icon={DollarSign}
-          color="text-red-500"
+          color="text-red-600"
+          bg="bg-red-100"
         />
       </div>
 
-      {/* Out of Stock Section */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <div>
+      {/* Main Content */}
+      <div className="grid gap-6 lg:grid-cols-3">
+        {/* Dashboard Summary */}
+        <div className="lg:col-span-2">
           <DashboardCard />
-          {stats.outOfStockParts.length > 0 && (
-            <OutOfStock
-              items={stats.outOfStockParts}
-              viewAllLink="/inventory?stockStatus=out"
-            />
-          )}
         </div>
-      </div> 
+
+        {/* Quick Summary */}
+        <Card className="shadow-sm">
+          <CardContent className="p-5">
+            <h3 className="font-semibold text-lg mb-4">
+              Inventory Summary
+            </h3>
+
+            <div className="space-y-4">
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">
+                  Total Parts
+                </span>
+                <span className="font-semibold">
+                  {stats.totalParts}
+                </span>
+              </div>
+
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">
+                  Low Stock
+                </span>
+                <span className="font-semibold text-yellow-600">
+                  {stats.lowStockCount}
+                </span>
+              </div>
+
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">
+                  Out of Stock
+                </span>
+                <span className="font-semibold text-red-600">
+                  {stats.outOfStockParts.length}
+                </span>
+              </div>
+
+              <div className="border-t pt-4 flex justify-between">
+                <span className="text-muted-foreground">
+                  Revenue Today
+                </span>
+                <span className="font-bold text-green-600">
+                  KES {stats.todaySales.toLocaleString()}
+                </span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Out of Stock */}
+      {stats.outOfStockParts.length > 0 && (
+        <div>
+          <OutOfStock
+            items={stats.outOfStockParts}
+            viewAllLink="/inventory?stockStatus=out"
+          />
+        </div>
+      )}
     </div>
   );
 }
