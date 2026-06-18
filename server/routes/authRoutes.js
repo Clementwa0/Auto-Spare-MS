@@ -5,6 +5,7 @@ const {
   login,
   me,
   setupStatus,
+  switchBranch,
 } = require("../controllers/authController");
 const { protect } = require("../middleware/authMiddleware");
 const rateLimit = require("express-rate-limit");
@@ -24,5 +25,6 @@ router.post("/register-company", authLimiter, registerCompany);
 router.post("/login", authLimiter, login);
 router.get("/setup-status", setupStatus);
 router.get("/me", protect, me);
+router.post("/switch-branch", protect, switchBranch);
 
 module.exports = router;
