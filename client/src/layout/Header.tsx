@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/context/AuthContext";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import BranchSwitcher from "@/components/BranchSwitcher";
 
 const Navbar: React.FC = () => {
   const location = useLocation();
@@ -45,7 +46,9 @@ const Navbar: React.FC = () => {
         {title}
       </h1>
 
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3">
+        <BranchSwitcher />
+
         <Button size="icon" variant="ghost" className="relative">
           <Bell className="w-5 h-5" />
           <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />
@@ -65,8 +68,14 @@ const Navbar: React.FC = () => {
                 <span className="text-xs text-muted-foreground">{user?.email}</span>
               </div>
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => navigate("/branch/setup")}>
+            <DropdownMenuItem onClick={() => navigate("/select-branch")}>
+              Switch branch
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => navigate("/branches")}>
               Manage branches
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => navigate("/company-settings")}>
+              Company settings
             </DropdownMenuItem>
             <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>
           </DropdownMenuContent>
