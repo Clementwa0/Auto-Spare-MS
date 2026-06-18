@@ -9,6 +9,10 @@ api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
     if (token) config.headers.Authorization = `Bearer ${token}`;
+    // Send the currently-selected branch on every request so the backend can
+    // scope reads/writes without requiring a fresh token after each switch.
+    const branchId = localStorage.getItem("activeBranchId");
+    if (branchId) config.headers["X-Branch-Id"] = branchId;
     return config;
   },
   (error) => Promise.reject(error)
@@ -24,7 +28,12 @@ api.interceptors.response.use(
       if (!location.pathname.startsWith("/login")) {
         location.assign("/login");
       }
-    } else if (status === 403 && (code === "NO_BRANCH" || code === "NO_COMPANY")) {
+    } else if (status === 403 && code === "NO_BRANCH") {
+      const ids: string[] = error.response?.data?.branchIds || [];
+      // Has branches but none selected -> pick one. None at all -> setup.
+      const target = ids.length > 0 ? "/select-branch" : "/branch/setup";
+      if (!location.pathname.startsWith(target)) location.assign(target);
+    } else if (status === 403 && code === "NO_COMPANY") {
       if (!location.pathname.startsWith("/branch/setup")) {
         location.assign("/branch/setup");
       }
