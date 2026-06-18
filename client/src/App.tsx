@@ -10,23 +10,41 @@ import {
   NotFound,
   Layout,
   AdminRoute,
+  RoleGuard,
   Login,
   Register,
   BranchSetup,
+  BranchSelector,
+  CompanySettings,
+  UsersPage,
   POSPage,
   ProtectedRoute,
   CreateUser,
 } from "@/components/index";
 import { AuthProvider } from "./context/AuthContext";
+import { Toaster } from "@/components/ui/sonner";
 
 const App = () => {
   return (
     <AuthProvider>
       <BrowserRouter>
+        <Toaster richColors position="top-right" />
         <Routes>
+          {/* PUBLIC */}
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
 
+          {/* Branch selection sits OUTSIDE the main layout (no sidebar). */}
+          <Route
+            path="/select-branch"
+            element={
+              <ProtectedRoute>
+                <BranchSelector />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* PROTECTED MAIN LAYOUT */}
           <Route
             element={
               <ProtectedRoute>
@@ -36,6 +54,7 @@ const App = () => {
           >
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
+            {/* Onboarding — bootstrap admin creates first branch */}
             <Route
               path="/branch/setup"
               element={
@@ -45,60 +64,102 @@ const App = () => {
               }
             />
 
-            {/* Admin-only routes */}
+            {/* Branch management (admins) */}
             <Route
-              path="/users/create"
+              path="/branches"
               element={
-                <AdminRoute>
-                  <CreateUser />
-                </AdminRoute>
+                <RoleGuard allow={["admin"]}>
+                  <BranchSetup />
+                </RoleGuard>
+              }
+            />
+
+            {/* User management (admins) */}
+            <Route
+              path="/users"
+              element={
+                <RoleGuard allow={["admin"]}>
+                  <UsersPage />
+                </RoleGuard>
               }
             />
             <Route
+              path="/users/create"
+              element={
+                <RoleGuard allow={["admin"]}>
+                  <CreateUser />
+                </RoleGuard>
+              }
+            />
+
+            {/* Company settings (admins) */}
+            <Route
+              path="/company-settings"
+              element={
+                <RoleGuard allow={["admin"]}>
+                  <CompanySettings />
+                </RoleGuard>
+              }
+            />
+
+            {/* Inventory — admin + storekeeper */}
+            <Route
               path="/parts/new"
               element={
-                <AdminRoute>
+                <RoleGuard allow={["admin", "storekeeper", "branch-manager"]}>
                   <PartForm />
-                </AdminRoute>
+                </RoleGuard>
               }
             />
             <Route
               path="/categories"
               element={
-                <AdminRoute>
+                <RoleGuard allow={["admin", "storekeeper", "branch-manager"]}>
                   <CategoryList />
-                </AdminRoute>
+                </RoleGuard>
               }
             />
             <Route
               path="/suppliers"
               element={
-                <AdminRoute>
+                <RoleGuard allow={["admin", "storekeeper", "branch-manager"]}>
                   <SupplierList />
-                </AdminRoute>
+                </RoleGuard>
               }
             />
+
+            {/* Reports — admin + branch-manager */}
             <Route
               path="/reports"
               element={
-                <AdminRoute>
+                <RoleGuard allow={["admin", "branch-manager"]}>
                   <InventoryReport />
-                </AdminRoute>
+                </RoleGuard>
               }
             />
             <Route
               path="/reports/low-stock"
               element={
-                <AdminRoute>
+                <RoleGuard allow={["admin", "branch-manager"]}>
                   <LowStockReport />
-                </AdminRoute>
+                </RoleGuard>
               }
             />
 
-            {/* Shared routes (Admin + Sales) */}
+            {/* Shared — any authenticated user */}
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/parts" element={<PartsList />} />
-            <Route path="/pos-sale" element={<POSPage />} />
+            <Route
+              path="/pos-sale"
+              element={
+                <RoleGuard
+                  allow={["admin", "branch-manager", "cashier", "sales"]}
+                >
+                  <POSPage />
+                </RoleGuard>
+              }
+            />
+
             <Route path="*" element={<NotFound />} />
           </Route>
         </Routes>
