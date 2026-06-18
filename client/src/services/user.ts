@@ -1,22 +1,27 @@
 import api from "@/lib/api";
-
-export type NewUser = {
-  name: string;
-  email: string;
-  password: string;
-  role: "admin" | "sales";
-};
+import type { Role } from "@/services/auth";
 
 export type AppUser = {
   _id: string;
   name: string;
   email: string;
-  role: "admin" | "sales";
-  branch: string | null;
+  role: Role;
+  branch?: { _id: string; name: string } | string | null;
+  activeBranch?: { _id: string; name: string } | string | null;
+  branches?: ({ _id: string; name: string } | string)[];
+  isActive?: boolean;
   createdAt?: string;
 };
 
-// Backend returns { user } — unwrap so callers get the user object directly.
+type NewUser = {
+  name: string;
+  email: string;
+  password: string;
+  role: Role | string;
+  branchIds?: string[];
+  activeBranchId?: string;
+};
+
 export const createUser = async (user: NewUser): Promise<AppUser> => {
   const response = await api.post("/users", user);
   return response.data.user;
@@ -29,6 +34,14 @@ export const listUsers = async (): Promise<AppUser[]> => {
 
 export const getUser = async (id: string): Promise<AppUser> => {
   const response = await api.get(`/users/${id}`);
+  return response.data.user;
+};
+
+export const updateUser = async (
+  id: string,
+  data: Partial<NewUser> & { isActive?: boolean }
+): Promise<AppUser> => {
+  const response = await api.put(`/users/${id}`, data);
   return response.data.user;
 };
 

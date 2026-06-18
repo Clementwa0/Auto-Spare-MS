@@ -49,3 +49,7 @@ export const assignUserToBranch = async (branchId: string, userId: string) => {
   return res.data.user;
 };
 
+export const removeUserFromBranch = async (branchId: string, userId: string) => {
+  const res = await api.post(`/branches/${branchId}/remove-user`, { userId });
+  return res.data.user;
+};
