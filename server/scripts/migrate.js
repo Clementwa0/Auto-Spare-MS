@@ -1,17 +1,3 @@
-/**
- * Migration: backfill Company + Branch for legacy data.
- *
- * Run:  node scripts/migrate.js
- *
- * Idempotent. Safe to run multiple times.
- *
- * What it does:
- *  1. Ensures a "Default Company" exists.
- *  2. Ensures a "Main Branch" exists for that company and marks it isMainBranch.
- *  3. Backfills user.company / user.branch for any user missing them.
- *  4. Backfills category.branch / spare-part.branch / sale.branch / expense.branch
- *     for any document missing a branch.
- */
 require("dotenv").config();
 const mongoose = require("mongoose");
 const connectDB = require("../config/db");
